@@ -697,7 +697,7 @@ document.getElementById('b-code').onclick = function () {
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { cflash(t('cloud-bademail')); return; }
   var btn = document.getElementById('b-code');
   btn.disabled = true; cflash(t('cloud-sending'));
-  sb.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true } }).then(function (res) {
+  sb.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true, emailRedirectTo: location.origin + location.pathname } }).then(function (res) {
     btn.disabled = false;
     if (res.error) { cflash(t('cloud-fail') + (res.error.message ? ': ' + res.error.message : '')); return; }
     cflash(t('cloud-sent'));
