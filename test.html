@@ -547,7 +547,7 @@ function entryToRow(e) {
 }
 function rowToEntry(r) {
   return { id: r.id, ts: Number(r.ts) || Date.now(), person: r.person || '', amount: Number(r.amount) || 0,
-    type: r.type, note: r.note || '', transcript: r.transcript || '', deleted: !!r.deleted, updated_at: r.updated_at || null };
+    type: r.type, note: r.note || '', transcript: r.transcript || '', deleted: !!r.deleted, updated_at: r.updated_at || null, _cloud: true };
 }
 function renderAll() { renderKhata(); renderUdhaar(); renderExport(); }
 
@@ -574,7 +574,7 @@ function mergeAndSync() {
       sb.from('entries').upsert(chunk).then(function (r2) {
         if (r2.error) { setSync('off'); return; }
         if (i < rows.length) pushNext();
-        else { lastSync = Date.now(); setSync('ok'); }
+        else { entries.forEach(function (e) { e._cloud = true; }); persist(); lastSync = Date.now(); setSync('ok'); }
       });
     })();
   });
@@ -588,7 +588,7 @@ function cloudUpsert(e) {
   setSync('ing');
   sb.from('entries').upsert([entryToRow(e)]).then(function (r) {
     if (r.error) setSync('off');
-    else { lastSync = Date.now(); setSync('ok'); }
+    else { e._cloud = true; persist(); lastSync = Date.now(); setSync('ok'); }
   });
 }
 function subscribeRealtime() {
@@ -613,6 +613,9 @@ function archiveLocal() {
     localStorage.setItem(ARCHIVE_KEY, JSON.stringify(Object.keys(byId).map(function (k) { return byId[k]; })));
     document.getElementById('archive-note').classList.remove('hidden');
   } catch (e) {}
+}
+function dropCloudEntries() {
+  entries = entries.filter(function (e) { return !e._cloud; });
 }
 function restoreArchive() {
   try {
@@ -667,7 +670,6 @@ document.getElementById('b-merge-yes').onclick = function () {
   mergeAndSync(); subscribeRealtime();
 };
 document.getElementById('b-merge-no').onclick = function () {
-  markMergeAsked();
   document.getElementById('merge-row').classList.add('hidden');
   archiveLocal();
   entries = []; persist(); renderAll();
@@ -677,7 +679,7 @@ document.getElementById('b-signout').onclick = function () {
   if (!sb) return;
   unsubscribeRealtime();
   sb.auth.signOut().then(function () {
-    session = null; restoreArchive(); persist(); renderAll(); showSignedOut();
+    session = null; dropCloudEntries(); restoreArchive(); persist(); renderAll(); showSignedOut();
   });
 };
 window.addEventListener('online', function () { if (session) scheduleSync(); });
@@ -717,7 +719,7 @@ if (sb) {
   });
   sb.auth.onAuthStateChange(function (ev) {
     if (ev === 'SIGNED_OUT') {
-      session = null; unsubscribeRealtime(); restoreArchive(); persist(); renderAll(); showSignedOut();
+      session = null; unsubscribeRealtime(); dropCloudEntries(); restoreArchive(); persist(); renderAll(); showSignedOut();
     }
   });
 } else { setSync('local'); }
