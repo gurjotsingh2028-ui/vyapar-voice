@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vyapar Voice - bol kar khata</title>
+<style>
+:root { --paper:#F6F1E7; --ink:#2B221B; --marigold:#D97E36; --green:#1E5B46; --green-soft:#e7efea; --marigold-soft:#f9ecdd; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'Noto Sans','Noto Sans Devanagari',system-ui,-apple-system,sans-serif; }
+.wrap { max-width: 560px; margin: 0 auto; padding: 18px 16px 60px; }
+h1 { font-size: 26px; margin: 4px 0 2px; letter-spacing: -0.02em; }
+.tag { color: var(--green); font-weight: 600; margin: 0 0 14px; font-size: 14px; }
+nav { display: flex; gap: 10px; flex-wrap: wrap; border-bottom: 1.5px solid #e2d6c3; margin-bottom: 16px; }
+nav button { font: inherit; background: none; border: none; padding: 12px 2px; min-height: 44px; color: #6b5f56; cursor: pointer; font-size: 15px; }
+nav button.on { color: var(--green); font-weight: 700; box-shadow: inset 0 -2px 0 var(--green); }
+.band { background: var(--green); border-radius: 16px; padding: 20px 18px 24px; color: var(--paper); text-align: center; }
+.band-t { font-size: 16px; font-weight: 700; }
+.wave { display: block; width: 100%; max-width: 320px; height: 40px; margin: 8px auto 12px; }
+.wave rect { fill: var(--marigold); }
+.mic { display: flex; flex-direction: column; align-items: center; gap: 5px; margin: 0 auto; width: 104px; height: 104px; justify-content: center; border-radius: 999px; border: 3px solid var(--marigold); background: var(--marigold); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+.mic.live { animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(217,126,54,.55); } 50% { box-shadow: 0 0 0 14px rgba(217,126,54,0); } }
+.note { margin: 10px auto 0; max-width: 340px; font-size: 13px; line-height: 1.5; color: #f4e9d8; background: rgba(0,0,0,.18); border-radius: 10px; padding: 8px 12px; }
+.field { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.field label { font-size: 13px; font-weight: 700; color: var(--green); }
+input, textarea { font: inherit; color: var(--ink); background: #fff; border: 1.5px solid #e2d6c3; border-radius: 10px; padding: 12px 14px; min-height: 44px; width: 100%; }
+input:focus, textarea:focus { outline: 2px solid var(--marigold); outline-offset: 1px; }
+.examples { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 8px; }
+.chip-eg { font: inherit; font-size: 13px; padding: 8px 12px; min-height: 36px; border-radius: 999px; border: 1.5px dashed var(--marigold); background: var(--marigold-soft); color: var(--ink); cursor: pointer; }
+.types { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin: 10px 0; }
+@media (max-width: 420px) { .types { grid-template-columns: repeat(2,1fr); } }
+.type { font: inherit; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px; min-height: 56px; border-radius: 12px; border: 1.5px solid #e2d6c3; background: #fff; cursor: pointer; }
+.type .hi { font-weight: 700; font-size: 14px; }
+.type .en { font-size: 11px; color: #6b5f56; }
+.type.on { border-color: var(--green); background: var(--green-soft); box-shadow: inset 0 0 0 1px var(--green); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 420px) { .grid2 { grid-template-columns: 1fr; } }
+.actions { display: flex; gap: 10px; margin-top: 14px; }
+.btn { font: inherit; font-weight: 700; border-radius: 12px; min-height: 48px; padding: 12px 18px; cursor: pointer; border: 1.5px solid transparent; }
+.btn-p { flex: 1; background: var(--green); color: #fff; }
+.btn-s { background: var(--marigold); color: #fff; }
+.btn-g { background: #fff; border-color: var(--marigold); color: var(--ink); min-height: 40px; padding: 8px 14px; font-weight: 600; }
+.flash { margin: 12px 0 0; font-size: 14px; font-weight: 600; color: var(--green); background: var(--green-soft); border-radius: 10px; padding: 10px 12px; }
+.totals { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
+@media (max-width: 420px) { .totals { grid-template-columns: 1fr; } }
+.total { border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px; }
+.total.in { background: var(--green-soft); }
+.total.out { background: var(--marigold-soft); }
+.total .t { font-size: 13px; font-weight: 700; }
+.total .a { font-size: 24px; font-weight: 800; color: var(--green); }
+.total.out .a { color: var(--marigold); }
+.entry { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 12px 2px; border-bottom: 1px solid #e8ddcc; }
+.e-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.e-name { font-weight: 700; overflow-wrap: anywhere; }
+.e-type { font-size: 13px; color: var(--green); font-weight: 600; }
+.e-note, .e-date { font-size: 12px; color: #6b5f56; overflow-wrap: anywhere; }
+.e-side { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.e-amt { font-weight: 800; }
+.del { font: inherit; border: none; background: none; color: #6b5f56; cursor: pointer; min-width: 44px; min-height: 44px; font-size: 15px; }
+.person { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 2px; border-bottom: 1px solid #e8ddcc; }
+.p-amt { font-weight: 700; }
+.in { color: var(--green); } .out { color: var(--marigold); }
+.cap { font-size: 12.5px; color: #6b5f56; line-height: 1.5; }
+.sec-t { font-size: 19px; font-weight: 800; margin: 20px 0 8px; letter-spacing: -0.01em; }
+.usage { height: 10px; border-radius: 999px; background: #fff; border: 1px solid #e2d6c3; overflow: hidden; margin: 6px 0; }
+.usage-b { height: 100%; background: var(--marigold); }
+.warn { background: var(--marigold-soft); border: 1.5px solid var(--marigold); border-radius: 10px; padding: 10px 12px; font-size: 13px; margin: 10px 0; }
+.hidden { display: none; }
+.hero { width: 100%; border-radius: 14px; margin: 14px 0 4px; display: block; }
+.topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.lang-btn { font: inherit; font-size: 13px; font-weight: 700; min-height: 40px; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--marigold); background: #fff; color: var(--ink); cursor: pointer; white-space: nowrap; }
+.sync-chip { font: inherit; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 7px 12px; min-height: 34px; border-radius: 999px; border: 1.5px solid #e2d6c3; background: #fff; color: #6b5f56; cursor: pointer; }
+.sync-chip.ok { color: var(--green); border-color: var(--green); background: var(--green-soft); }
+.sync-chip.warn { color: var(--marigold); border-color: var(--marigold); background: var(--marigold-soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><div><h1>Vyapar Voice</h1>
+  <p class="tag" data-i18n="tag">बोलिए - खाता खुद बने</p><button class="sync-chip warn" id="sync-chip" type="button">&#8226; इस डिवाइस पर</button></div><button class="lang-btn" id="b-lang" type="button">English</button></div>
+  <nav>
+    <button data-r="add" class="on" data-i18n="nav-add">बोलिए</button>
+    <button data-r="khata" data-i18n="nav-khata">बही-खाता</button>
+    <button data-r="udhaar" data-i18n="nav-udhaar">उधार</button>
+    <button data-r="export" data-i18n="nav-export">डाउनलोड</button>
+    <button data-r="cloud" data-i18n="nav-cloud">क्लाउड</button>
+  </nav>
+
+  <section id="r-add">
+    <div class="band">
+      <div class="band-t" data-i18n="band-t">Mic dabao, Hindi me bolo</div>
+      <svg class="wave" viewBox="0 0 360 48" aria-hidden="true" id="wave"></svg>
+      <button class="mic" id="mic"><svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true"><path fill="currentColor" d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 1 0-7 0v6A3.5 3.5 0 0 0 12 15Zm6-3.5a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.94V22h2v-2.56A8 8 0 0 0 20 11.5h-2Z"/></svg><span id="mic-t">बोलिए</span></button>
+      <div class="note hidden" id="voice-msg"></div>
+    </div>
+    <div class="field">
+      <label for="t-transcript" data-i18n="l-transcript">Jo bola / likha</label>
+      <textarea id="t-transcript" rows="2" placeholder="Jaise: Ramesh ko 500 udhaar diya" data-i18n-ph="ph-transcript"></textarea>
+      <button class="btn btn-g" id="b-parse" type="button" data-i18n="b-parse">Is se entry samjho</button>
+    </div>
+    <div class="examples" id="examples"></div>
+    <div class="types" id="types"></div>
+    <div class="grid2">
+      <div class="field"><label for="t-person" data-i18n="l-person">Naam</label><input id="t-person" placeholder="Jaise: Ramesh" data-i18n-ph="ph-person"></div>
+      <div class="field"><label for="t-amount" data-i18n="l-amount">Rakam (₹)</label><input id="t-amount" inputmode="decimal" placeholder="500"></div>
+    </div>
+    <div class="field"><label for="t-note" data-i18n="l-note">Note (optional)</label><input id="t-note" placeholder="Jaise: atta-chawal ka saaman" data-i18n-ph="ph-note"></div>
+    <div class="actions">
+      <button class="btn btn-s" id="b-speak" type="button" data-i18n="b-speak">सुनें - sahi hai?</button>
+      <button class="btn btn-p" id="b-save" type="button" data-i18n="b-save">Save करें</button>
+    </div>
+    <p class="flash hidden" id="flash" role="status"></p>
+  </section>
+
+  <section id="r-khata" class="hidden">
+    <div class="sec-t" data-i18n="khata-t">Udhaar ka hisaab</div>
+    <div class="totals">
+      <div class="total in"><span class="t" data-i18n="sum-in">आपको लेने हैं</span><span class="a" id="sum-in">₹0</span></div>
+      <div class="total out"><span class="t" data-i18n="sum-out">आपको देने हैं</span><span class="a" id="sum-out">₹0</span></div>
+    </div>
+    <div class="sec-t" id="entries-h">Saari entries (0)</div>
+    <div id="entries"></div>
+    <p class="cap" id="khata-empty" data-i18n="khata-empty">Abhi koi entry nahi. Boliye tab me pehli entry karein.</p>
+  </section>
+
+  <section id="r-udhaar" class="hidden">
+    <div class="sec-t" data-i18n="udhaar-t">Kiske kitne paise</div>
+    <div id="persons"></div>
+    <p class="cap" id="udhaar-empty" data-i18n="udhaar-empty">Koi udhaar baaki nahi. Jab kisi ko udhaar dein ya jama aaye, yahan naam aur hisaab dikhega.</p>
+    <p class="cap" data-i18n="reminder-cap">Reminder ka text copy hota hai - aap khud WhatsApp me paste kar ke bhejte hain. App apne aap kisi ko message nahi bhejta.</p>
+  </section>
+
+  <section id="r-export" class="hidden">
+    <div class="sec-t" data-i18n="export-t">Poora khata - CSV download</div>
+    <p class="cap" id="exp-count">0 entries saved hain.</p>
+    <div class="actions"><button class="btn btn-p" id="b-csv" type="button" data-i18n="b-csv">CSV download karein</button></div>
+    <p class="cap" style="margin-top:10px" data-i18n="csv-cap">CSV file Excel, Google Sheets aur bahi-khata apps me khulti hai. Agar download na chale to neeche se copy karein:</p>
+    <div class="field"><textarea id="t-csv" rows="8" readonly></textarea></div>
+    <div class="sec-t" data-i18n="storage-t">Storage</div>
+    <div class="usage"><div class="usage-b" id="usage-b" style="width:2%"></div></div>
+    <p class="cap" id="usage-t"></p>
+  </section>
+
+  <section id="r-cloud" class="hidden">
+    <div class="sec-t" data-i18n="cloud-t">Cloud backup</div>
+    <p class="cap" data-i18n="cloud-cap">Email daalein, code aayega.</p>
+    <div id="cloud-out">
+      <div class="field"><label for="t-email" data-i18n="l-email">Email</label><input id="t-email" type="email" inputmode="email" autocomplete="email" placeholder="jaise: aap@gmail.com" data-i18n-ph="ph-email"></div>
+      <div class="actions"><button class="btn btn-p" id="b-code" type="button" data-i18n="b-sendcode">Code bhejein</button></div>
+    </div>
+    <div id="merge-row" class="hidden">
+      <p class="cap" id="merge-q"></p>
+      <div class="actions"><button class="btn btn-p" id="b-merge-yes" type="button" data-i18n="merge-yes">Haan, jodo</button><button class="btn btn-g" id="b-merge-no" type="button" data-i18n="merge-no">Nahi</button></div>
+    </div>
+    <div id="cloud-in" class="hidden">
+      <p class="cap"><span data-i18n="cloud-signedin">Sign in:</span> <b id="cloud-email"></b></p>
+      <p class="cap" id="cloud-status"></p>
+      <p class="cap hidden" id="archive-note" data-i18n="merge-archived">Purani entries alag hain.</p>
+      <div class="actions"><button class="btn btn-g" id="b-signout" type="button" data-i18n="b-signout">Sign out</button></div>
+    </div>
+    <p class="flash hidden" id="cloud-flash" role="status"></p>
+  </section>
+
+  <div class="warn hidden" id="persist-warn" data-i18n="persist-warn">Is browser me entries save nahi ho pa rahi - page band hote hi hat jayengi. CSV ka backup lete rahein.</div>
+
+  <p class="cap" style="margin-top:26px" data-i18n="foot-cap">Data sirf isi device ke browser me saved rehta hai - doosre phone ya browser par yeh khata nahi dikhega, isliye CSV ka backup lete rahein. Audio recording is version me store nahi hoti - boli gayi baat ka likha text hi record hai. Koi message ya payment apne aap nahi hota. Voice input usi browser me chalta hai jo mic ki permission de aur Web Speech support kare.</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+'use strict';
+var TYPES = {
+  'udhaar-diya': { hi: 'उधार दिया', en: 'credit given', sign: 1 },
+  'jama': { hi: 'जमा आया', en: 'payment received', sign: -1 },
+  'udhaar-liya': { hi: 'उधार लिया', en: 'credit taken', sign: -1 },
+  'chukaya': { hi: 'चुकाया', en: 'paid back', sign: 1 },
+  'sale': { hi: 'बिक्री', en: 'sale', sign: 0 },
+  'kharid': { hi: 'ख़रीद', en: 'purchase', sign: 0 }
+};
+var ORDER = ['udhaar-diya', 'jama', 'udhaar-liya', 'chukaya', 'sale', 'kharid'];
+var LANG_KEY = 'vyapar-voice-lang';
+var I18N = {
+  'tag': { hi: 'बोलिए - खाता खुद बने', en: 'Speak - your khata writes itself' },
+  'nav-add': { hi: 'बोलिए', en: 'Speak' },
+  'nav-khata': { hi: 'बही-खाता', en: 'Ledger' },
+  'nav-udhaar': { hi: 'उधार', en: 'Dues' },
+  'nav-export': { hi: 'डाउनलोड', en: 'Download' },
+  'band-t': { hi: 'माइक दबाएं, हिन्दी में बोलें', en: 'Tap the mic and speak in Hindi' },
+  'mic-idle': { hi: 'बोलिए', en: 'Speak' },
+  'mic-live': { hi: 'सुन रहा हूँ...', en: 'Listening...' },
+  'l-transcript': { hi: 'जो बोला / लिखा', en: 'What you said / typed' },
+  'ph-transcript': { hi: 'जैसे: रमेश को 500 उधार दिया', en: 'E.g.: Ramesh ko 500 udhaar diya' },
+  'b-parse': { hi: 'इससे एंट्री बनाएं', en: 'Make entry from this' },
+  'l-person': { hi: 'नाम', en: 'Name' },
+  'ph-person': { hi: 'जैसे: रमेश', en: 'E.g.: Ramesh' },
+  'l-amount': { hi: 'रकम (₹)', en: 'Amount (₹)' },
+  'l-note': { hi: 'नोट (वैकल्पिक)', en: 'Note (optional)' },
+  'ph-note': { hi: 'जैसे: आटा-चावल का सामान', en: 'E.g.: flour and rice supplies' },
+  'b-speak': { hi: 'सुनें - सही है?', en: 'Listen - correct?' },
+  'b-save': { hi: 'सेव करें', en: 'Save' },
+  'khata-t': { hi: 'उधार का हिसाब', en: 'Dues summary' },
+  'sum-in': { hi: 'आपको लेने हैं', en: 'You will receive' },
+  'sum-out': { hi: 'आपको देने हैं', en: 'You will pay' },
+  'entries-h': { hi: 'सारी एंट्रियाँ', en: 'All entries' },
+  'khata-empty': { hi: 'अभी कोई एंट्री नहीं। बोलिए टैब में पहली एंट्री करें।', en: 'No entries yet. Add your first entry in the Speak tab.' },
+  'udhaar-t': { hi: 'किसके कितने पैसे', en: 'Who owes what' },
+  'udhaar-empty': { hi: 'कोई उधार बाकी नहीं। जब किसी को उधार दें या जमा आए, यहाँ नाम और हिसाब दिखेगा।', en: 'No dues pending. When you give credit or receive a payment, names and balances show here.' },
+  'reminder-cap': { hi: 'रिमाइंडर का टेक्स्ट कॉपी होता है - आप खुद WhatsApp में पेस्ट कर के भेजते हैं। ऐप अपने आप किसी को मैसेज नहीं भेजता।', en: 'Reminder text is for copying - you paste and send it in WhatsApp yourself. The app never messages anyone on its own.' },
+  'export-t': { hi: 'पूरा खाता - CSV डाउनलोड', en: 'Full khata - CSV download' },
+  'exp-count': { hi: 'एंट्रियाँ सेव हैं।', en: 'entries saved.' },
+  'b-csv': { hi: 'CSV डाउनलोड करें', en: 'Download CSV' },
+  'csv-cap': { hi: 'CSV फ़ाइल Excel, Google Sheets और बही-खाता ऐप्स में खुलती है। अगर डाउनलोड न चले तो नीचे से कॉपी करें:', en: 'The CSV file opens in Excel, Google Sheets and ledger apps. If the download does not work, copy from below:' },
+  'storage-t': { hi: 'स्टोरेज', en: 'Storage' },
+  'usage-a': { hi: 'इस डिवाइस पर करीब ', en: 'About ' },
+  'usage-b': { hi: ' KB इस डिवाइस के कैश में है (लोकल कॉपी)।', en: ' KB in this device\'s cache (local copy).' },
+  'persist-warn': { hi: 'इस ब्राउज़र में एंट्रियाँ सेव नहीं हो पा रही - पेज बंद होते ही हट जाएँगी। CSV का बैकअप लेते रहें।', en: 'Entries cannot be saved in this browser - they will disappear when the page closes. Keep taking CSV backups.' },
+  'foot-cap': { hi: 'साइन इन करने पर आपका डेटा आपके निजी क्लाउड खाते में सुरक्षित सेव होता है और हर डिवाइस पर मिलता है; बिना साइन इन के सिर्फ इसी डिवाइस के ब्राउज़र में रहता है। ऑडियो रिकॉर्डिंग इस वर्ज़न में स्टोर नहीं होती - बोली गई बात का लिखा टेक्स्ट ही रिकॉर्ड है। कोई मैसेज या पेमेंट अपने आप नहीं होता। वॉइस इनपुट उसी ब्राउज़र में चलता है जो माइक की अनुमति दे और Web Speech सपोर्ट करे।', en: "When you sign in, your data is saved safely in your private cloud account and is available on every device; without sign-in it stays only in this device's browser. Audio is not stored in this version - the written text of what you said is the record. No message or payment happens on its own. Voice input works in browsers that allow mic access and support Web Speech." },
+  'flash-amount': { hi: 'रकम 0 से ज़्यादा होनी चाहिए।', en: 'Amount must be more than 0.' },
+  'flash-name': { hi: 'नाम डालना ज़रूरी है - उधार किसके नाम है?', en: 'Name is required - whose udhaar is this?' },
+  'flash-saved': { hi: 'सेव हो गया: ', en: 'Saved: ' },
+  'voice-nosr': { hi: 'इस ब्राउज़र में वॉइस इनपुट नहीं है। टाइप करके एंट्री करें।', en: 'This browser has no voice input. Type your entry instead.' },
+  'voice-denied': { hi: 'ब्राउज़र ने माइक की अनुमति नहीं दी। एड्रेस बार के पास माइक की permission on करें, या टाइप करके एंट्री करें।', en: 'The browser did not allow mic access. Turn on mic permission near the address bar, or type your entry.' },
+  'voice-err1': { hi: 'वॉइस अभी काम नहीं कर रहा', en: 'Voice is not working right now' },
+  'voice-err2': { hi: '। टाइप करके एंट्री करें।', en: '. Type your entry instead.' },
+  'voice-fail': { hi: 'वॉइस शुरू नहीं हो पाया। टाइप करके एंट्री करें।', en: 'Could not start voice. Type your entry instead.' },
+  'del-confirm': { hi: 'यह एंट्री हटा दें?', en: 'Delete this entry?' },
+  'del-aria': { hi: 'एंट्री हटाएं', en: 'Delete entry' },
+  'entry-fallback': { hi: 'एंट्री', en: 'Entry' },
+  'lene': { hi: 'लेने हैं', en: 'to receive' },
+  'dene': { hi: 'देने हैं', en: 'to pay' },
+  'rem-text': { hi: 'रिमाइंडर टेक्स्ट', en: 'Reminder text' },
+  'rem-close': { hi: 'बंद करें', en: 'Close' },
+  'csv-fail': { hi: 'डाउनलोड नहीं हो पाया - नीचे टेक्स्ट कॉपी कर लें।', en: 'Download failed - copy the text below.' },
+  'nav-cloud': { hi: 'क्लाउड', en: 'Cloud' },
+  'cloud-t': { hi: 'क्लाउड बैकअप - हर डिवाइस पर आपका खाता', en: 'Cloud backup - your khata on every device' },
+  'cloud-cap': { hi: 'ईमेल डालें, उस पर एक साइन-इन लिंक आएगा। एक बार साइन इन करें - आपका खाता क्लाउड में सुरक्षित सेव रहेगा और हर फ़ोन/ब्राउज़र पर मिलेगा। बिना साइन इन के एंट्रियाँ सिर्फ इसी डिवाइस पर रहती हैं।', en: 'Enter your email and a sign-in link will be sent to it. Sign in once - your khata stays safely in the cloud and shows on every phone/browser. Without sign-in, entries stay only on this device.' },
+  'l-email': { hi: 'ईमेल', en: 'Email' },
+  'ph-email': { hi: 'जैसे: aap@gmail.com', en: 'e.g.: you@gmail.com' },
+  'b-sendcode': { hi: 'साइन-इन लिंक भेजें', en: 'Send sign-in link' },
+  'l-code': { hi: 'ईमेल से आया कोड', en: 'Code from your email' },
+  'b-verify': { hi: 'साइन इन करें', en: 'Sign in' },
+  'b-signout': { hi: 'साइन आउट', en: 'Sign out' },
+  'cloud-signedin': { hi: 'साइन इन:', en: 'Signed in:' },
+  'cloud-sending': { hi: 'लिंक भेजा जा रहा है...', en: 'Sending link...' },
+  'cloud-sent': { hi: 'लिंक भेज दिया! अपना ईमेल खोलें (स्पैम फ़ोल्डर भी) और उसमें दिए Sign in लिंक को छूएं - इसी पेज पर साइन इन हो जाएगा।', en: 'Link sent! Open your email (spam folder too) and tap the Sign in link in it - you will be signed in on this page.' },
+  'cloud-bademail': { hi: 'सही ईमेल डालें।', en: 'Enter a valid email.' },
+  'cloud-badcode': { hi: 'कोड सही नहीं बैठा। दोबारा कोशिश करें या नया कोड मंगाएं।', en: 'Code did not match. Try again or request a new code.' },
+  'cloud-fail': { hi: 'क्लाउड अभी काम नहीं कर पाया', en: 'Cloud did not work just now' },
+  'sync-local': { hi: 'सिर्फ इस डिवाइस पर', en: 'On this device only' },
+  'sync-ok': { hi: 'क्लाउड में सेव', en: 'Saved in cloud' },
+  'sync-ing': { hi: 'सिंक हो रहा...', en: 'Syncing...' },
+  'sync-off': { hi: 'ऑफ़लाइन - बाद में सिंक होगा', en: 'Offline - will sync later' },
+  'sync-last': { hi: 'आखिरी सिंक:', en: 'Last sync:' },
+  'merge-q': { hi: 'इस डिवाइस पर {n} एंट्रियाँ पहले से हैं। क्या इन्हें इस क्लाउड खाते में जोड़ा जाए?', en: 'This device already has {n} entries. Add them into this cloud account?' },
+  'merge-yes': { hi: 'हाँ, जोड़ें', en: 'Yes, add them' },
+  'merge-no': { hi: 'नहीं, अलग रखें', en: 'No, keep separate' },
+  'merge-archived': { hi: 'पुरानी एंट्रियाँ इसी डिवाइस पर अलग सुरक्षित हैं - साइन आउट करने पर वापस मिल जाएँगी।', en: 'Earlier entries are kept separately on this device - they will be back when you sign out.' }
+};
+var lang = 'hi';
+try { lang = localStorage.getItem(LANG_KEY) === 'en' ? 'en' : 'hi'; } catch (e) {}
+function t(k) { return (I18N[k] && I18N[k][lang]) || ''; }
+function typeLabel(ty) { return lang === 'hi' ? TYPES[ty].hi : TYPES[ty].en; }
+var KEY = 'vyapar-voice-entries-v1';
+var entries = [];
+var persistent = true;
+try {
+  localStorage.setItem('__vv_t', '1'); localStorage.removeItem('__vv_t');
+  entries = JSON.parse(localStorage.getItem(KEY) || '[]');
+  if (!Array.isArray(entries)) entries = [];
+} catch (e) { persistent = false; entries = []; }
+if (!persistent) document.getElementById('persist-warn').classList.remove('hidden');
+function liveEntries() { return entries.filter(function (e) { return !e.deleted; }); }
+
+function persist() {
+  if (!persistent) return;
+  try { localStorage.setItem(KEY, JSON.stringify(entries)); }
+  catch (e) { persistent = false; document.getElementById('persist-warn').classList.remove('hidden'); }
+}
+function fmt(n) { return Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }); }
+function fmtDate(ts) {
+  var d = new Date(ts);
+  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return d.getDate() + ' ' + M[d.getMonth()] + ', ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+function esc(s) { return '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"'; }
+
+var wave = document.getElementById('wave');
+var wh = '';
+for (var i = 0; i < 40; i++) {
+  var h = Math.round(8 + 30 * Math.abs(Math.sin(i * 0.55)) * (0.5 + 0.5 * Math.abs(Math.sin(i * 0.13 + 1.2))));
+  wh += '<rect x="' + (i * 9) + '" y="' + ((48 - h) / 2) + '" width="5" height="' + h + '" rx="2.5"/>';
+}
+wave.innerHTML = wh;
+
+function parseSpoken(raw) {
+  var text = String(raw || '').trim();
+  var lower = text.toLowerCase();
+  var amt = lower.match(/(\d+(?:[.,]\d+)?)/);
+  var amount = amt ? Number(amt[1].replace(/,/g, '')) : null;
+  var person = '';
+  var pm = text.match(/([A-Za-z\u0900-\u097F]+(?:\s+[A-Za-z\u0900-\u097F]+)?)\s+(?:ko|se|ne|को|से|ने)(?=[\s,।]|$)/i);
+  if (pm) person = pm[1].trim();
+  var type = 'udhaar-diya';
+  if (/चुकाया|चुका|chuka/.test(lower)) type = 'chukaya';
+  else if (/जमा|jama|मिले|मिला|mile|mila|आया|आए|aaya|वापस|wapas|wapis/.test(lower)) type = 'jama';
+  else if (/लिया|ली\b|liya|लेना/.test(lower)) type = 'udhaar-liya';
+  else if (/बेचा|बेची|बिक्री|becha|bechi|bikri|sale/.test(lower)) type = 'sale';
+  else if (/खरीदा|खरीदी|खरीद|kharid/.test(lower)) type = 'kharid';
+  else if (/दिया|दिए|देना|दी\b|diya|dene|उधार|udhaar|udhar/.test(lower)) type = 'udhaar-diya';
+  return { person: person, amount: amount, type: type };
+}
+
+var curType = 'udhaar-diya';
+var typesEl = document.getElementById('types');
+function renderTypes() {
+  typesEl.innerHTML = '';
+  ORDER.forEach(function (ty) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'type' + (ty === curType ? ' on' : '');
+    b.innerHTML = '<span class="hi">' + typeLabel(ty) + '</span><span class="en">' + (lang === 'hi' ? TYPES[ty].en : TYPES[ty].hi) + '</span>';
+    b.onclick = function () { curType = ty; typesEl.querySelectorAll('.type').forEach(function (x) { x.classList.remove('on'); }); b.classList.add('on'); };
+    typesEl.appendChild(b);
+  });
+}
+renderTypes();
+function setType(t) { curType = t; typesEl.querySelectorAll('.type').forEach(function (x, idx) { x.classList.toggle('on', ORDER[idx] === t); }); }
+
+var EXAMPLES = {
+  hi: ['रमेश को 500 उधार दिया', 'सुनीता से 200 जमा आए', 'आज 1500 की बिक्री', 'गुप्ता ट्रेडर्स से माल 3000 का खरीदा'],
+  en: ['Ramesh ko 500 udhaar diya', 'Sunita se 200 jama aaye', 'Aaj 1500 ki bikri', 'Gupta traders se maal 3000 ka kharida']
+};
+var exEl = document.getElementById('examples');
+function renderExamples() {
+  exEl.innerHTML = '';
+  EXAMPLES[lang].forEach(function (x) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip-eg'; b.textContent = x;
+    b.onclick = function () { applyTranscript(x); };
+    exEl.appendChild(b);
+  });
+}
+renderExamples();
+
+var $ = function (id) { return document.getElementById(id); };
+function applyTranscript(t) {
+  $('t-transcript').value = t;
+  var p = parseSpoken(t);
+  if (p.person) $('t-person').value = p.person;
+  if (p.amount != null) $('t-amount').value = String(p.amount);
+  setType(p.type);
+}
+$('b-parse').onclick = function () { applyTranscript($('t-transcript').value); };
+
+var rec = null, listening = false;
+$('mic').onclick = function () {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { voiceMsg(t('voice-nosr')); return; }
+  if (listening) { try { rec.stop(); } catch (e) {} return; }
+  try {
+    rec = new SR();
+    rec.lang = 'hi-IN'; rec.interimResults = true; rec.continuous = false;
+    rec.onresult = function (ev) {
+      var fin = '', interim = '';
+      for (var i = 0; i < ev.results.length; i++) { var r = ev.results[i]; if (r.isFinal) fin += r[0].transcript; else interim += r[0].transcript; }
+      if (fin) applyTranscript(fin.trim()); else $('t-transcript').value = (fin + interim).trim();
+    };
+    rec.onerror = function (ev) {
+      stopMic();
+      if (ev && (ev.error === 'not-allowed' || ev.error === 'service-not-allowed')) voiceMsg(t('voice-denied'));
+      else voiceMsg(t('voice-err1') + (ev && ev.error ? ' (' + ev.error + ')' : '') + t('voice-err2'));
+    };
+    rec.onend = function () { stopMic(); };
+    rec.start();
+    listening = true;
+    $('mic').classList.add('live'); $('mic-t').textContent = t('mic-live');
+    voiceMsg('');
+  } catch (e) { voiceMsg(t('voice-fail')); }
+};
+function stopMic() { listening = false; $('mic').classList.remove('live'); $('mic-t').textContent = t('mic-idle'); }
+function voiceMsg(m) { var el = $('voice-msg'); el.textContent = m; el.classList.toggle('hidden', !m); }
+
+$('b-speak').onclick = function () {
+  var meta = TYPES[curType];
+  var p = $('t-person').value.trim();
+  var s = (p ? p + ', ' : '') + meta.hi + ', ' + ($('t-amount').value || '0') + ' rupaye. Sahi hai?';
+  try { var u = new SpeechSynthesisUtterance(s); u.lang = 'hi-IN'; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); } catch (e) {}
+};
+
+$('b-save').onclick = function () {
+  var amt = Number($('t-amount').value);
+  if (!isFinite(amt) || amt <= 0) { flash(t('flash-amount')); return; }
+  var person = $('t-person').value.trim();
+  if (!person && TYPES[curType].sign !== 0) { flash(t('flash-name')); return; }
+  var e = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    ts: Date.now(), person: person, amount: Math.round(amt * 100) / 100,
+    type: curType, note: $('t-note').value.trim(), transcript: $('t-transcript').value.trim()
+  };
+  e.updated_at = new Date().toISOString();
+  entries.unshift(e);
+  persist();
+  cloudUpsert(e);
+  flash(t('flash-saved') + (e.person ? e.person + ' - ' : '') + typeLabel(e.type) + ' ₹' + fmt(e.amount));
+  $('t-transcript').value = ''; $('t-person').value = ''; $('t-amount').value = ''; $('t-note').value = '';
+  setType('udhaar-diya');
+  renderKhata(); renderUdhaar(); renderExport();
+};
+function flash(m) { var el = $('flash'); el.textContent = m; el.classList.remove('hidden'); clearTimeout(flash._t); flash._t = setTimeout(function () { el.classList.add('hidden'); }, 6000); }
+
+function balances() {
+  var map = {};
+  liveEntries().forEach(function (e) {
+    var s = TYPES[e.type].sign;
+    if (s === 0 || !e.person) return;
+    map[e.person] = (map[e.person] || 0) + s * e.amount;
+  });
+  return Object.keys(map).map(function (p) { return { person: p, net: Math.round(map[p] * 100) / 100 }; })
+    .filter(function (p) { return p.net !== 0; })
+    .sort(function (a, b) { return b.net - a.net; });
+}
+
+function renderKhata() {
+  var bl = balances();
+  var lin = 0, lout = 0;
+  bl.forEach(function (p) { if (p.net > 0) lin += p.net; else lout -= p.net; });
+  $('sum-in').textContent = '₹' + fmt(lin);
+  $('sum-out').textContent = '₹' + fmt(lout);
+  $('entries-h').textContent = t('entries-h') + ' (' + liveEntries().length + ')';
+  $('khata-empty').classList.toggle('hidden', liveEntries().length > 0);
+  var html = '';
+  liveEntries().forEach(function (e) {
+    html += '<div class="entry"><div class="e-main"><span class="e-name">' + escHtml(e.person || (e.type === 'sale' || e.type === 'kharid' ? typeLabel(e.type) : t('entry-fallback'))) + '</span>' +
+      '<span class="e-type">' + typeLabel(e.type) + '</span>' +
+      (e.note ? '<span class="e-note">' + escHtml(e.note) + '</span>' : '') +
+      '<span class="e-date">' + fmtDate(e.ts) + '</span></div>' +
+      '<div class="e-side"><span class="e-amt">₹' + fmt(e.amount) + '</span><button class="del" data-id="' + e.id + '" aria-label="' + t('del-aria') + '">✕</button></div></div>';
+  });
+  $('entries').innerHTML = html;
+  $('entries').querySelectorAll('.del').forEach(function (b) {
+    b.onclick = function () {
+      if (!window.confirm(t('del-confirm'))) return;
+      var delId = b.getAttribute('data-id');
+      entries.forEach(function (e) { if (e.id === delId) { e.deleted = true; e.updated_at = new Date().toISOString(); cloudUpsert(e); } });
+      persist(); renderKhata(); renderUdhaar(); renderExport();
+    };
+  });
+}
+function escHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+function renderUdhaar() {
+  var bl = balances();
+  $('udhaar-empty').classList.toggle('hidden', bl.length > 0);
+  var html = '';
+  bl.forEach(function (p) {
+    html += '<div><div class="person"><div class="e-main"><span class="e-name">' + escHtml(p.person) + '</span>' +
+      (p.net > 0 ? '<span class="p-amt in">₹' + fmt(p.net) + ' ' + t('lene') + '</span>' : '<span class="p-amt out">₹' + fmt(-p.net) + ' ' + t('dene') + '</span>') + '</div>' +
+      (p.net > 0 ? '<button class="btn btn-g" data-p="' + escHtml(p.person) + '" data-a="' + p.net + '">' + t('rem-text') + '</button>' : '') + '</div>' +
+      '<div class="field hidden" id="rem-' + escHtml(p.person) + '"><textarea readonly rows="3">' + reminderText(p.person, p.net) + '</textarea></div></div>';
+  });
+  $('persons').innerHTML = html;
+  $('persons').querySelectorAll('.btn-g').forEach(function (b) {
+    b.onclick = function () {
+      var box = $('rem-' + b.getAttribute('data-p'));
+      if (!box) return;
+      box.classList.toggle('hidden');
+      if (!box.classList.contains('hidden')) { var ta = box.querySelector('textarea'); ta.focus(); ta.select(); }
+      b.textContent = box.classList.contains('hidden') ? t('rem-text') : t('rem-close');
+    };
+  });
+}
+function reminderText(person, amt) {
+  return 'Namaste ' + person + ' ji, aapka ₹' + fmt(amt) + ' udhaar baaki hai. Kripya apna bhugtan jama kar dein. Dhanyavaad.\n(Is text ko copy kar ke WhatsApp me khud bhejein - app apne aap message nahi bhejta.)';
+}
+
+function buildCsv() {
+  var rows = liveEntries().map(function (e) {
+    return [fmtDate(e.ts), e.person, TYPES[e.type].hi + ' (' + TYPES[e.type].en + ')', String(e.amount), e.note, e.transcript].map(esc).join(',');
+  });
+  return ['"Date","Name","Type","Amount (INR)","Note","Transcript"'].concat(rows).join('\n');
+}
+function renderExport() {
+  $('exp-count').textContent = liveEntries().length + ' ' + t('exp-count');
+  $('t-csv').value = buildCsv();
+  var kb = Math.round(JSON.stringify(entries).length / 1024);
+  $('usage-t').textContent = t('usage-a') + kb + t('usage-b');
+  $('usage-b').style.width = Math.max(2, Math.min(100, (JSON.stringify(entries).length / (5 * 1024 * 1024)) * 100)) + '%';
+}
+$('b-csv').onclick = function () {
+  try {
+    var blob = new Blob(['\uFEFF' + buildCsv()], { type: 'text/csv;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'vyapar-voice-khata.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  } catch (e) { alert(t('csv-fail')); }
+};
+
+
+/* ---------------- Cloud sync (Supabase) ---------------- */
+var SUPABASE_URL = 'https://fdulhcjajnizyviaimne.supabase.co';
+var SUPABASE_ANON_KEY = 'sb_publishable_UiqVNn5fnX7jbFB8qwdbWQ_sw2dRbf8';
+var ARCHIVE_KEY = 'vyapar-voice-archive-v1';
+var sb = null, session = null, rtChannel = null, lastSync = 0, syncTimer = null;
+var cloudReady = false;
+try {
+  cloudReady = !!(window.supabase && SUPABASE_URL.indexOf('YOUR_PROJECT_REF') === -1 && SUPABASE_ANON_KEY.indexOf('YOUR_') !== 0);
+  if (cloudReady) sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch (e) { cloudReady = false; sb = null; }
+
+function setSync(state) {
+  var chip = document.getElementById('sync-chip');
+  chip.classList.remove('ok', 'warn');
+  if (state === 'ok') { chip.classList.add('ok'); chip.textContent = '☁ ' + t('sync-ok'); }
+  else if (state === 'ing') { chip.classList.add('warn'); chip.textContent = '↕ ' + t('sync-ing'); }
+  else if (state === 'off') { chip.classList.add('warn'); chip.textContent = '! ' + t('sync-off'); }
+  else { chip.classList.add('warn'); chip.textContent = '• ' + t('sync-local'); }
+  var cs = document.getElementById('cloud-status');
+  if (state === 'ok' && lastSync) cs.textContent = t('sync-last') + ' ' + fmtDate(lastSync);
+  else if (state === 'ing') cs.textContent = t('sync-ing');
+  else if (state === 'off') cs.textContent = t('sync-off');
+  else cs.textContent = '';
+}
+function cflash(m) {
+  var el = document.getElementById('cloud-flash');
+  el.textContent = m; el.classList.remove('hidden');
+  clearTimeout(cflash._t); cflash._t = setTimeout(function () { el.classList.add('hidden'); }, 8000);
+}
+function showSignedIn(email) {
+  document.getElementById('cloud-out').classList.add('hidden');
+  document.getElementById('cloud-in').classList.remove('hidden');
+  document.getElementById('cloud-email').textContent = email;
+}
+function showSignedOut() {
+  document.getElementById('cloud-out').classList.remove('hidden');
+  document.getElementById('cloud-in').classList.add('hidden');
+  document.getElementById('merge-row').classList.add('hidden');
+  setSync('local');
+}
+function entryToRow(e) {
+  return { id: e.id, ts: Number(e.ts) || Date.now(), person: e.person || '', amount: Number(e.amount) || 0,
+    type: e.type, note: e.note || '', transcript: e.transcript || '', deleted: !!e.deleted,
+    updated_at: e.updated_at || new Date(Number(e.ts) || Date.now()).toISOString() };
+}
+function rowToEntry(r) {
+  return { id: r.id, ts: Number(r.ts) || Date.now(), person: r.person || '', amount: Number(r.amount) || 0,
+    type: r.type, note: r.note || '', transcript: r.transcript || '', deleted: !!r.deleted, updated_at: r.updated_at || null };
+}
+function renderAll() { renderKhata(); renderUdhaar(); renderExport(); }
+
+function mergeAndSync() {
+  if (!sb || !session) return;
+  setSync('ing');
+  sb.from('entries').select('*').then(function (res) {
+    if (res.error) { setSync('off'); return; }
+    var byId = {};
+    entries.forEach(function (e) { byId[e.id] = e; });
+    (res.data || []).forEach(function (r) {
+      var ce = rowToEntry(r);
+      var le = byId[ce.id];
+      if (!le || Date.parse(ce.updated_at || 0) > Date.parse(le.updated_at || 0)) byId[ce.id] = ce;
+    });
+    entries = Object.keys(byId).map(function (k) { return byId[k]; })
+      .sort(function (a, b) { return (Number(b.ts) || 0) - (Number(a.ts) || 0); });
+    persist(); renderAll();
+    var rows = entries.map(entryToRow);
+    if (!rows.length) { lastSync = Date.now(); setSync('ok'); return; }
+    var i = 0;
+    (function pushNext() {
+      var chunk = rows.slice(i, i + 100); i += 100;
+      sb.from('entries').upsert(chunk).then(function (r2) {
+        if (r2.error) { setSync('off'); return; }
+        if (i < rows.length) pushNext();
+        else { lastSync = Date.now(); setSync('ok'); }
+      });
+    })();
+  });
+}
+function scheduleSync() {
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(mergeAndSync, 900);
+}
+function cloudUpsert(e) {
+  if (!sb || !session) return;
+  setSync('ing');
+  sb.from('entries').upsert([entryToRow(e)]).then(function (r) {
+    if (r.error) setSync('off');
+    else { lastSync = Date.now(); setSync('ok'); }
+  });
+}
+function subscribeRealtime() {
+  if (!sb || !session || !session.user) return;
+  try {
+    if (rtChannel) { sb.removeChannel(rtChannel); rtChannel = null; }
+    rtChannel = sb.channel('entries-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'entries', filter: 'user_id=eq.' + session.user.id }, function () { scheduleSync(); })
+      .subscribe();
+  } catch (e) {}
+}
+function unsubscribeRealtime() {
+  if (sb && rtChannel) { try { sb.removeChannel(rtChannel); } catch (e) {} rtChannel = null; }
+}
+function archiveLocal() {
+  try {
+    var live = liveEntries();
+    if (!live.length) return;
+    var old = JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]');
+    var byId = {}; old.forEach(function (e) { byId[e.id] = e; });
+    live.forEach(function (e) { byId[e.id] = e; });
+    localStorage.setItem(ARCHIVE_KEY, JSON.stringify(Object.keys(byId).map(function (k) { return byId[k]; })));
+    document.getElementById('archive-note').classList.remove('hidden');
+  } catch (e) {}
+}
+function restoreArchive() {
+  try {
+    var old = JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]');
+    if (!old.length) { document.getElementById('archive-note').classList.add('hidden'); return; }
+    var byId = {}; entries.forEach(function (e) { byId[e.id] = e; });
+    old.forEach(function (e) { if (!byId[e.id]) byId[e.id] = e; });
+    entries = Object.keys(byId).map(function (k) { return byId[k]; })
+      .sort(function (a, b) { return (Number(b.ts) || 0) - (Number(a.ts) || 0); });
+    localStorage.removeItem(ARCHIVE_KEY);
+    document.getElementById('archive-note').classList.add('hidden');
+  } catch (e) {}
+}
+function afterSignIn() {
+  showSignedIn(session.user.email || '');
+  var n = liveEntries().length;
+  if (n > 0) {
+    document.getElementById('merge-q').textContent = t('merge-q').replace('{n}', n);
+    document.getElementById('merge-row').classList.remove('hidden');
+    setSync('local');
+  } else {
+    mergeAndSync(); subscribeRealtime();
+  }
+}
+
+document.getElementById('sync-chip').onclick = function () {
+  var b = document.querySelector('nav button[data-r="cloud"]');
+  if (b) b.click();
+};
+document.getElementById('b-code').onclick = function () {
+  if (!sb) { cflash(t('cloud-fail')); return; }
+  var email = document.getElementById('t-email').value.trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { cflash(t('cloud-bademail')); return; }
+  var btn = document.getElementById('b-code');
+  btn.disabled = true; cflash(t('cloud-sending'));
+  sb.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true } }).then(function (res) {
+    btn.disabled = false;
+    if (res.error) { cflash(t('cloud-fail') + (res.error.message ? ': ' + res.error.message : '')); return; }
+    cflash(t('cloud-sent'));
+  });
+};
+document.getElementById('b-merge-yes').onclick = function () {
+  document.getElementById('merge-row').classList.add('hidden');
+  mergeAndSync(); subscribeRealtime();
+};
+document.getElementById('b-merge-no').onclick = function () {
+  document.getElementById('merge-row').classList.add('hidden');
+  archiveLocal();
+  entries = []; persist(); renderAll();
+  mergeAndSync(); subscribeRealtime();
+};
+document.getElementById('b-signout').onclick = function () {
+  if (!sb) return;
+  unsubscribeRealtime();
+  sb.auth.signOut().then(function () {
+    session = null; restoreArchive(); persist(); renderAll(); showSignedOut();
+  });
+};
+window.addEventListener('online', function () { if (session) scheduleSync(); });
+document.addEventListener('visibilitychange', function () { if (!document.hidden && session) scheduleSync(); });
+
+function applyLang(l) {
+  lang = (l === 'en') ? 'en' : 'hi';
+  try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+  document.documentElement.lang = lang;
+  $('b-lang').textContent = lang === 'hi' ? 'English' : 'हिन्दी';
+  document.querySelectorAll('[data-i18n]').forEach(function (el) { var k = el.getAttribute('data-i18n'); if (I18N[k]) el.textContent = t(k); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function (el) { var k = el.getAttribute('data-i18n-ph'); if (I18N[k]) el.setAttribute('placeholder', t(k)); });
+  renderTypes(); renderExamples(); renderKhata(); renderUdhaar(); renderExport();
+  if (!listening) $('mic-t').textContent = t('mic-idle');
+}
+$('b-lang').onclick = function () { applyLang(lang === 'hi' ? 'en' : 'hi'); };
+
+var navBtns = document.querySelectorAll('nav button');
+navBtns.forEach(function (b) {
+  b.onclick = function () {
+    navBtns.forEach(function (x) { x.classList.remove('on'); });
+    b.classList.add('on');
+    ['add', 'khata', 'udhaar', 'export', 'cloud'].forEach(function (r) {
+      document.getElementById('r-' + r).classList.toggle('hidden', r !== b.getAttribute('data-r'));
+    });
+  };
+});
+
+if (sb) {
+  setSync('local');
+  sb.auth.getSession().then(function (res) {
+    var s0 = res && res.data ? res.data.session : null;
+    if (s0 && s0.user) {
+      session = s0;
+      showSignedIn(s0.user.email || '');
+      try { if (JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]').length) document.getElementById('archive-note').classList.remove('hidden'); } catch (e) {}
+      mergeAndSync();
+      subscribeRealtime();
+    }
+  });
+  sb.auth.onAuthStateChange(function (ev) {
+    if (ev === 'SIGNED_OUT') {
+      session = null; unsubscribeRealtime(); restoreArchive(); persist(); renderAll(); showSignedOut();
+    }
+  });
+} else { setSync('local'); }
+
+applyLang(lang);
+})();
+</script>
+</body>
+</html>
