@@ -502,6 +502,7 @@ $('b-csv').onclick = function () {
 /* ---------------- Cloud sync (Supabase) ---------------- */
 var SUPABASE_URL = 'https://fdulhcjajnizyviaimne.supabase.co';
 var SUPABASE_ANON_KEY = 'sb_publishable_UiqVNn5fnX7jbFB8qwdbWQ_sw2dRbf8';
+var MERGE_ASKED_KEY = 'vyapar-voice-merge-asked-';
 var ARCHIVE_KEY = 'vyapar-voice-archive-v1';
 var sb = null, session = null, rtChannel = null, lastSync = 0, syncTimer = null;
 var cloudReady = false;
@@ -625,10 +626,17 @@ function restoreArchive() {
     document.getElementById('archive-note').classList.add('hidden');
   } catch (e) {}
 }
+function mergeAsked() {
+  try { return !!localStorage.getItem(MERGE_ASKED_KEY + session.user.id); } catch (e) { return false; }
+}
+function markMergeAsked() {
+  try { localStorage.setItem(MERGE_ASKED_KEY + session.user.id, '1'); } catch (e) {}
+}
 function afterSignIn() {
   showSignedIn(session.user.email || '');
+  try { if (JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]').length) document.getElementById('archive-note').classList.remove('hidden'); } catch (e) {}
   var n = liveEntries().length;
-  if (n > 0) {
+  if (n > 0 && !mergeAsked()) {
     document.getElementById('merge-q').textContent = t('merge-q').replace('{n}', n);
     document.getElementById('merge-row').classList.remove('hidden');
     setSync('local');
@@ -654,10 +662,12 @@ document.getElementById('b-code').onclick = function () {
   });
 };
 document.getElementById('b-merge-yes').onclick = function () {
+  markMergeAsked();
   document.getElementById('merge-row').classList.add('hidden');
   mergeAndSync(); subscribeRealtime();
 };
 document.getElementById('b-merge-no').onclick = function () {
+  markMergeAsked();
   document.getElementById('merge-row').classList.add('hidden');
   archiveLocal();
   entries = []; persist(); renderAll();
@@ -702,10 +712,7 @@ if (sb) {
     var s0 = res && res.data ? res.data.session : null;
     if (s0 && s0.user) {
       session = s0;
-      showSignedIn(s0.user.email || '');
-      try { if (JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]').length) document.getElementById('archive-note').classList.remove('hidden'); } catch (e) {}
-      mergeAndSync();
-      subscribeRealtime();
+      afterSignIn();
     }
   });
   sb.auth.onAuthStateChange(function (ev) {
