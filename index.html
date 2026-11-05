@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vyapar Voice - bol kar khata</title>
+<style>
+:root { --paper:#F6F1E7; --ink:#2B221B; --marigold:#D97E36; --green:#1E5B46; --green-soft:#e7efea; --marigold-soft:#f9ecdd; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'Noto Sans','Noto Sans Devanagari',system-ui,-apple-system,sans-serif; }
+.wrap { max-width: 560px; margin: 0 auto; padding: 18px 16px 60px; }
+h1 { font-size: 26px; margin: 4px 0 2px; letter-spacing: -0.02em; }
+.tag { color: var(--green); font-weight: 600; margin: 0 0 14px; font-size: 14px; }
+nav { display: flex; gap: 18px; border-bottom: 1.5px solid #e2d6c3; margin-bottom: 16px; }
+nav button { font: inherit; background: none; border: none; padding: 12px 2px; min-height: 44px; color: #6b5f56; cursor: pointer; font-size: 15px; }
+nav button.on { color: var(--green); font-weight: 700; box-shadow: inset 0 -2px 0 var(--green); }
+.band { background: var(--green); border-radius: 16px; padding: 20px 18px 24px; color: var(--paper); text-align: center; }
+.band-t { font-size: 16px; font-weight: 700; }
+.wave { display: block; width: 100%; max-width: 320px; height: 40px; margin: 8px auto 12px; }
+.wave rect { fill: var(--marigold); }
+.mic { display: flex; flex-direction: column; align-items: center; gap: 5px; margin: 0 auto; width: 104px; height: 104px; justify-content: center; border-radius: 999px; border: 3px solid var(--marigold); background: var(--marigold); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+.mic.live { animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(217,126,54,.55); } 50% { box-shadow: 0 0 0 14px rgba(217,126,54,0); } }
+.note { margin: 10px auto 0; max-width: 340px; font-size: 13px; line-height: 1.5; color: #f4e9d8; background: rgba(0,0,0,.18); border-radius: 10px; padding: 8px 12px; }
+.field { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.field label { font-size: 13px; font-weight: 700; color: var(--green); }
+input, textarea { font: inherit; color: var(--ink); background: #fff; border: 1.5px solid #e2d6c3; border-radius: 10px; padding: 12px 14px; min-height: 44px; width: 100%; }
+input:focus, textarea:focus { outline: 2px solid var(--marigold); outline-offset: 1px; }
+.examples { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 8px; }
+.chip-eg { font: inherit; font-size: 13px; padding: 8px 12px; min-height: 36px; border-radius: 999px; border: 1.5px dashed var(--marigold); background: var(--marigold-soft); color: var(--ink); cursor: pointer; }
+.types { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin: 10px 0; }
+@media (max-width: 420px) { .types { grid-template-columns: repeat(2,1fr); } }
+.type { font: inherit; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px; min-height: 56px; border-radius: 12px; border: 1.5px solid #e2d6c3; background: #fff; cursor: pointer; }
+.type .hi { font-weight: 700; font-size: 14px; }
+.type .en { font-size: 11px; color: #6b5f56; }
+.type.on { border-color: var(--green); background: var(--green-soft); box-shadow: inset 0 0 0 1px var(--green); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 420px) { .grid2 { grid-template-columns: 1fr; } }
+.actions { display: flex; gap: 10px; margin-top: 14px; }
+.btn { font: inherit; font-weight: 700; border-radius: 12px; min-height: 48px; padding: 12px 18px; cursor: pointer; border: 1.5px solid transparent; }
+.btn-p { flex: 1; background: var(--green); color: #fff; }
+.btn-s { background: var(--marigold); color: #fff; }
+.btn-g { background: #fff; border-color: var(--marigold); color: var(--ink); min-height: 40px; padding: 8px 14px; font-weight: 600; }
+.flash { margin: 12px 0 0; font-size: 14px; font-weight: 600; color: var(--green); background: var(--green-soft); border-radius: 10px; padding: 10px 12px; }
+.totals { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
+@media (max-width: 420px) { .totals { grid-template-columns: 1fr; } }
+.total { border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px; }
+.total.in { background: var(--green-soft); }
+.total.out { background: var(--marigold-soft); }
+.total .t { font-size: 13px; font-weight: 700; }
+.total .a { font-size: 24px; font-weight: 800; color: var(--green); }
+.total.out .a { color: var(--marigold); }
+.entry { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 12px 2px; border-bottom: 1px solid #e8ddcc; }
+.e-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.e-name { font-weight: 700; overflow-wrap: anywhere; }
+.e-type { font-size: 13px; color: var(--green); font-weight: 600; }
+.e-note, .e-date { font-size: 12px; color: #6b5f56; overflow-wrap: anywhere; }
+.e-side { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.e-amt { font-weight: 800; }
+.del { font: inherit; border: none; background: none; color: #6b5f56; cursor: pointer; min-width: 44px; min-height: 44px; font-size: 15px; }
+.person { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 2px; border-bottom: 1px solid #e8ddcc; }
+.p-amt { font-weight: 700; }
+.in { color: var(--green); } .out { color: var(--marigold); }
+.cap { font-size: 12.5px; color: #6b5f56; line-height: 1.5; }
+.sec-t { font-size: 19px; font-weight: 800; margin: 20px 0 8px; letter-spacing: -0.01em; }
+.usage { height: 10px; border-radius: 999px; background: #fff; border: 1px solid #e2d6c3; overflow: hidden; margin: 6px 0; }
+.usage-b { height: 100%; background: var(--marigold); }
+.warn { background: var(--marigold-soft); border: 1.5px solid var(--marigold); border-radius: 10px; padding: 10px 12px; font-size: 13px; margin: 10px 0; }
+.hidden { display: none; }
+.hero { width: 100%; border-radius: 14px; margin: 14px 0 4px; display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Vyapar Voice</h1>
+  <p class="tag">बोलिए - खाता खुद बने</p>
+  <nav>
+    <button data-r="add" class="on">बोलिए</button>
+    <button data-r="khata">बही-खाता</button>
+    <button data-r="udhaar">उधार</button>
+    <button data-r="export">डाउनलोड</button>
+  </nav>
+
+  <section id="r-add">
+    <div class="band">
+      <div class="band-t">Mic dabao, Hindi me bolo</div>
+      <svg class="wave" viewBox="0 0 360 48" aria-hidden="true" id="wave"></svg>
+      <button class="mic" id="mic"><svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true"><path fill="currentColor" d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 1 0-7 0v6A3.5 3.5 0 0 0 12 15Zm6-3.5a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.94V22h2v-2.56A8 8 0 0 0 20 11.5h-2Z"/></svg><span id="mic-t">बोलिए</span></button>
+      <div class="note hidden" id="voice-msg"></div>
+    </div>
+    <div class="field">
+      <label for="t-transcript">Jo bola / likha</label>
+      <textarea id="t-transcript" rows="2" placeholder="Jaise: Ramesh ko 500 udhaar diya"></textarea>
+      <button class="btn btn-g" id="b-parse" type="button">Is se entry samjho</button>
+    </div>
+    <div class="examples" id="examples"></div>
+    <div class="types" id="types"></div>
+    <div class="grid2">
+      <div class="field"><label for="t-person">Naam</label><input id="t-person" placeholder="Jaise: Ramesh"></div>
+      <div class="field"><label for="t-amount">Rakam (₹)</label><input id="t-amount" inputmode="decimal" placeholder="500"></div>
+    </div>
+    <div class="field"><label for="t-note">Note (optional)</label><input id="t-note" placeholder="Jaise: atta-chawal ka saaman"></div>
+    <div class="actions">
+      <button class="btn btn-s" id="b-speak" type="button">सुनें - sahi hai?</button>
+      <button class="btn btn-p" id="b-save" type="button">Save करें</button>
+    </div>
+    <p class="flash hidden" id="flash" role="status"></p>
+  </section>
+
+  <section id="r-khata" class="hidden">
+    <div class="sec-t">Udhaar ka hisaab</div>
+    <div class="totals">
+      <div class="total in"><span class="t">आपको लेने हैं</span><span class="a" id="sum-in">₹0</span></div>
+      <div class="total out"><span class="t">आपको देने हैं</span><span class="a" id="sum-out">₹0</span></div>
+    </div>
+    <div class="sec-t" id="entries-h">Saari entries (0)</div>
+    <div id="entries"></div>
+    <p class="cap" id="khata-empty">Abhi koi entry nahi. Boliye tab me pehli entry karein.</p>
+  </section>
+
+  <section id="r-udhaar" class="hidden">
+    <div class="sec-t">Kiske kitne paise</div>
+    <div id="persons"></div>
+    <p class="cap" id="udhaar-empty">Koi udhaar baaki nahi. Jab kisi ko udhaar dein ya jama aaye, yahan naam aur hisaab dikhega.</p>
+    <p class="cap">Reminder ka text copy hota hai - aap khud WhatsApp me paste kar ke bhejte hain. App apne aap kisi ko message nahi bhejta.</p>
+  </section>
+
+  <section id="r-export" class="hidden">
+    <div class="sec-t">Poora khata - CSV download</div>
+    <p class="cap" id="exp-count">0 entries saved hain.</p>
+    <div class="actions"><button class="btn btn-p" id="b-csv" type="button">CSV download karein</button></div>
+    <p class="cap" style="margin-top:10px">CSV file Excel, Google Sheets aur bahi-khata apps me khulti hai. Agar download na chale to neeche se copy karein:</p>
+    <div class="field"><textarea id="t-csv" rows="8" readonly></textarea></div>
+    <div class="sec-t">Storage</div>
+    <div class="usage"><div class="usage-b" id="usage-b" style="width:2%"></div></div>
+    <p class="cap" id="usage-t"></p>
+  </section>
+
+  <div class="warn hidden" id="persist-warn">Is browser me entries save nahi ho pa rahi - page band hote hi hat jayengi. CSV ka backup lete rahein.</div>
+
+  <p class="cap" style="margin-top:26px">Data sirf isi device ke browser me saved rehta hai - doosre phone ya browser par yeh khata nahi dikhega, isliye CSV ka backup lete rahein. Audio recording is version me store nahi hoti - boli gayi baat ka likha text hi record hai. Koi message ya payment apne aap nahi hota. Chrome/Android me voice input sabse achha chalta hai.</p>
+</div>
+
+<script>
+(function () {
+'use strict';
+var TYPES = {
+  'udhaar-diya': { hi: 'उधार दिया', en: 'credit given', sign: 1 },
+  'jama': { hi: 'जमा आया', en: 'payment received', sign: -1 },
+  'udhaar-liya': { hi: 'उधार लिया', en: 'credit taken', sign: -1 },
+  'chukaya': { hi: 'चुकाया', en: 'paid back', sign: 1 },
+  'sale': { hi: 'बिक्री', en: 'sale', sign: 0 },
+  'kharid': { hi: 'ख़रीद', en: 'purchase', sign: 0 }
+};
+var ORDER = ['udhaar-diya', 'jama', 'udhaar-liya', 'chukaya', 'sale', 'kharid'];
+var KEY = 'vyapar-voice-entries-v1';
+var entries = [];
+var persistent = true;
+try {
+  localStorage.setItem('__vv_t', '1'); localStorage.removeItem('__vv_t');
+  entries = JSON.parse(localStorage.getItem(KEY) || '[]');
+  if (!Array.isArray(entries)) entries = [];
+} catch (e) { persistent = false; entries = []; }
+if (!persistent) document.getElementById('persist-warn').classList.remove('hidden');
+
+function persist() {
+  if (!persistent) return;
+  try { localStorage.setItem(KEY, JSON.stringify(entries)); }
+  catch (e) { persistent = false; document.getElementById('persist-warn').classList.remove('hidden'); }
+}
+function fmt(n) { return Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }); }
+function fmtDate(ts) {
+  var d = new Date(ts);
+  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return d.getDate() + ' ' + M[d.getMonth()] + ', ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+function esc(s) { return '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"'; }
+
+var wave = document.getElementById('wave');
+var wh = '';
+for (var i = 0; i < 40; i++) {
+  var h = Math.round(8 + 30 * Math.abs(Math.sin(i * 0.55)) * (0.5 + 0.5 * Math.abs(Math.sin(i * 0.13 + 1.2))));
+  wh += '<rect x="' + (i * 9) + '" y="' + ((48 - h) / 2) + '" width="5" height="' + h + '" rx="2.5"/>';
+}
+wave.innerHTML = wh;
+
+function parseSpoken(raw) {
+  var text = String(raw || '').trim();
+  var lower = text.toLowerCase();
+  var amt = lower.match(/(\d+(?:[.,]\d+)?)/);
+  var amount = amt ? Number(amt[1].replace(/,/g, '')) : null;
+  var person = '';
+  var pm = text.match(/([A-Za-z\u0900-\u097F]+(?:\s+[A-Za-z\u0900-\u097F]+)?)\s+(?:ko|se|ne|को|से|ने)(?=[\s,।]|$)/i);
+  if (pm) person = pm[1].trim();
+  var type = 'udhaar-diya';
+  if (/चुकाया|चुका|chuka/.test(lower)) type = 'chukaya';
+  else if (/जमा|jama|मिले|मिला|mile|mila|आया|आए|aaya|वापस|wapas|wapis/.test(lower)) type = 'jama';
+  else if (/लिया|ली\b|liya|लेना/.test(lower)) type = 'udhaar-liya';
+  else if (/बेचा|बेची|बिक्री|becha|bechi|bikri|sale/.test(lower)) type = 'sale';
+  else if (/खरीदा|खरीदी|खरीद|kharid/.test(lower)) type = 'kharid';
+  else if (/दिया|दिए|देना|दी\b|diya|dene|उधार|udhaar|udhar/.test(lower)) type = 'udhaar-diya';
+  return { person: person, amount: amount, type: type };
+}
+
+var curType = 'udhaar-diya';
+var typesEl = document.getElementById('types');
+ORDER.forEach(function (t) {
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'type' + (t === curType ? ' on' : '');
+  b.innerHTML = '<span class="hi">' + TYPES[t].hi + '</span><span class="en">' + TYPES[t].en + '</span>';
+  b.onclick = function () { curType = t; typesEl.querySelectorAll('.type').forEach(function (x) { x.classList.remove('on'); }); b.classList.add('on'); };
+  typesEl.appendChild(b);
+});
+function setType(t) { curType = t; typesEl.querySelectorAll('.type').forEach(function (x, idx) { x.classList.toggle('on', ORDER[idx] === t); }); }
+
+var EXAMPLES = ['Ramesh ko 500 udhaar diya', 'Sunita se 200 jama aaye', 'Aaj 1500 ki bikri', 'Gupta traders se maal 3000 ka kharida'];
+var exEl = document.getElementById('examples');
+EXAMPLES.forEach(function (x) {
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'chip-eg'; b.textContent = x;
+  b.onclick = function () { applyTranscript(x); };
+  exEl.appendChild(b);
+});
+
+var $ = function (id) { return document.getElementById(id); };
+function applyTranscript(t) {
+  $('t-transcript').value = t;
+  var p = parseSpoken(t);
+  if (p.person) $('t-person').value = p.person;
+  if (p.amount != null) $('t-amount').value = String(p.amount);
+  setType(p.type);
+}
+$('b-parse').onclick = function () { applyTranscript($('t-transcript').value); };
+
+var rec = null, listening = false;
+$('mic').onclick = function () {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { voiceMsg('Is browser me voice input nahi hai. Type karke entry karein - phone ke Chrome me bolna kaam karta hai.'); return; }
+  if (listening) { try { rec.stop(); } catch (e) {} return; }
+  try {
+    rec = new SR();
+    rec.lang = 'hi-IN'; rec.interimResults = true; rec.continuous = false;
+    rec.onresult = function (ev) {
+      var fin = '', interim = '';
+      for (var i = 0; i < ev.results.length; i++) { var r = ev.results[i]; if (r.isFinal) fin += r[0].transcript; else interim += r[0].transcript; }
+      if (fin) applyTranscript(fin.trim()); else $('t-transcript').value = (fin + interim).trim();
+    };
+    rec.onerror = function (ev) {
+      stopMic();
+      if (ev && (ev.error === 'not-allowed' || ev.error === 'service-not-allowed')) voiceMsg('Browser ne mic ka access nahi diya. Address bar ke paas mic ki permission on karein, ya type karke entry karein.');
+      else voiceMsg('Voice abhi kaam nahi kar raha' + (ev && ev.error ? ' (' + ev.error + ')' : '') + '. Type karke entry karein.');
+    };
+    rec.onend = function () { stopMic(); };
+    rec.start();
+    listening = true;
+    $('mic').classList.add('live'); $('mic-t').textContent = 'Sun raha hoon...';
+    voiceMsg('');
+  } catch (e) { voiceMsg('Voice shuru nahi ho paya. Type karke entry karein.'); }
+};
+function stopMic() { listening = false; $('mic').classList.remove('live'); $('mic-t').textContent = 'बोलिए'; }
+function voiceMsg(m) { var el = $('voice-msg'); el.textContent = m; el.classList.toggle('hidden', !m); }
+
+$('b-speak').onclick = function () {
+  var meta = TYPES[curType];
+  var p = $('t-person').value.trim();
+  var s = (p ? p + ', ' : '') + meta.hi + ', ' + ($('t-amount').value || '0') + ' rupaye. Sahi hai?';
+  try { var u = new SpeechSynthesisUtterance(s); u.lang = 'hi-IN'; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); } catch (e) {}
+};
+
+$('b-save').onclick = function () {
+  var amt = Number($('t-amount').value);
+  if (!isFinite(amt) || amt <= 0) { flash('Amount 0 se zyada hona chahiye.'); return; }
+  var person = $('t-person').value.trim();
+  if (!person && TYPES[curType].sign !== 0) { flash('Naam daalna zaroori hai - udhaar kiske naam hai?'); return; }
+  var e = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    ts: Date.now(), person: person, amount: Math.round(amt * 100) / 100,
+    type: curType, note: $('t-note').value.trim(), transcript: $('t-transcript').value.trim()
+  };
+  entries.unshift(e);
+  persist();
+  flash('Save ho gaya: ' + (e.person ? e.person + ' - ' : '') + TYPES[e.type].hi + ' ₹' + fmt(e.amount));
+  $('t-transcript').value = ''; $('t-person').value = ''; $('t-amount').value = ''; $('t-note').value = '';
+  setType('udhaar-diya');
+  renderKhata(); renderUdhaar(); renderExport();
+};
+function flash(m) { var el = $('flash'); el.textContent = m; el.classList.remove('hidden'); clearTimeout(flash._t); flash._t = setTimeout(function () { el.classList.add('hidden'); }, 6000); }
+
+function balances() {
+  var map = {};
+  entries.forEach(function (e) {
+    var s = TYPES[e.type].sign;
+    if (s === 0 || !e.person) return;
+    map[e.person] = (map[e.person] || 0) + s * e.amount;
+  });
+  return Object.keys(map).map(function (p) { return { person: p, net: Math.round(map[p] * 100) / 100 }; })
+    .filter(function (p) { return p.net !== 0; })
+    .sort(function (a, b) { return b.net - a.net; });
+}
+
+function renderKhata() {
+  var bl = balances();
+  var lin = 0, lout = 0;
+  bl.forEach(function (p) { if (p.net > 0) lin += p.net; else lout -= p.net; });
+  $('sum-in').textContent = '₹' + fmt(lin);
+  $('sum-out').textContent = '₹' + fmt(lout);
+  $('entries-h').textContent = 'Saari entries (' + entries.length + ')';
+  $('khata-empty').classList.toggle('hidden', entries.length > 0);
+  var html = '';
+  entries.forEach(function (e) {
+    html += '<div class="entry"><div class="e-main"><span class="e-name">' + escHtml(e.person || (e.type === 'sale' ? 'बिक्री' : e.type === 'kharid' ? 'ख़रीद' : 'Entry')) + '</span>' +
+      '<span class="e-type">' + TYPES[e.type].hi + '</span>' +
+      (e.note ? '<span class="e-note">' + escHtml(e.note) + '</span>' : '') +
+      '<span class="e-date">' + fmtDate(e.ts) + '</span></div>' +
+      '<div class="e-side"><span class="e-amt">₹' + fmt(e.amount) + '</span><button class="del" data-id="' + e.id + '" aria-label="Entry hatayein">✕</button></div></div>';
+  });
+  $('entries').innerHTML = html;
+  $('entries').querySelectorAll('.del').forEach(function (b) {
+    b.onclick = function () {
+      if (!window.confirm('Yeh entry hata dein?')) return;
+      entries = entries.filter(function (e) { return e.id !== b.getAttribute('data-id'); });
+      persist(); renderKhata(); renderUdhaar(); renderExport();
+    };
+  });
+}
+function escHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+function renderUdhaar() {
+  var bl = balances();
+  $('udhaar-empty').classList.toggle('hidden', bl.length > 0);
+  var html = '';
+  bl.forEach(function (p) {
+    html += '<div><div class="person"><div class="e-main"><span class="e-name">' + escHtml(p.person) + '</span>' +
+      (p.net > 0 ? '<span class="p-amt in">₹' + fmt(p.net) + ' lene hain</span>' : '<span class="p-amt out">₹' + fmt(-p.net) + ' dene hain</span>') + '</div>' +
+      (p.net > 0 ? '<button class="btn btn-g" data-p="' + escHtml(p.person) + '" data-a="' + p.net + '">Reminder text</button>' : '') + '</div>' +
+      '<div class="field hidden" id="rem-' + escHtml(p.person) + '"><textarea readonly rows="3">' + reminderText(p.person, p.net) + '</textarea></div></div>';
+  });
+  $('persons').innerHTML = html;
+  $('persons').querySelectorAll('.btn-g').forEach(function (b) {
+    b.onclick = function () {
+      var box = $('rem-' + b.getAttribute('data-p'));
+      if (!box) return;
+      box.classList.toggle('hidden');
+      if (!box.classList.contains('hidden')) { var ta = box.querySelector('textarea'); ta.focus(); ta.select(); }
+      b.textContent = box.classList.contains('hidden') ? 'Reminder text' : 'Band karein';
+    };
+  });
+}
+function reminderText(person, amt) {
+  return 'Namaste ' + person + ' ji, aapka ₹' + fmt(amt) + ' udhaar baaki hai. Kripya apna bhugtan jama kar dein. Dhanyavaad.\n(Is text ko copy kar ke WhatsApp me khud bhejein - app apne aap message nahi bhejta.)';
+}
+
+function buildCsv() {
+  var rows = entries.map(function (e) {
+    return [fmtDate(e.ts), e.person, TYPES[e.type].hi + ' (' + TYPES[e.type].en + ')', String(e.amount), e.note, e.transcript].map(esc).join(',');
+  });
+  return ['"Date","Name","Type","Amount (INR)","Note","Transcript"'].concat(rows).join('\n');
+}
+function renderExport() {
+  $('exp-count').textContent = entries.length + ' entries saved hain.';
+  $('t-csv').value = buildCsv();
+  var kb = Math.round(JSON.stringify(entries).length / 1024);
+  $('usage-t').textContent = 'Is device par about ' + kb + ' KB use ho raha hai (browser localStorage, aksar 5 MB tak). CSV ka backup lete rahein.';
+  $('usage-b').style.width = Math.max(2, Math.min(100, (JSON.stringify(entries).length / (5 * 1024 * 1024)) * 100)) + '%';
+}
+$('b-csv').onclick = function () {
+  try {
+    var blob = new Blob(['\uFEFF' + buildCsv()], { type: 'text/csv;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'vyapar-voice-khata.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  } catch (e) { alert('Download nahi ho paya - neeche text copy kar lein.'); }
+};
+
+var navBtns = document.querySelectorAll('nav button');
+navBtns.forEach(function (b) {
+  b.onclick = function () {
+    navBtns.forEach(function (x) { x.classList.remove('on'); });
+    b.classList.add('on');
+    ['add', 'khata', 'udhaar', 'export'].forEach(function (r) {
+      document.getElementById('r-' + r).classList.toggle('hidden', r !== b.getAttribute('data-r'));
+    });
+  };
+});
+
+renderKhata(); renderUdhaar(); renderExport();
+})();
+</script>
+</body>
+</html>
