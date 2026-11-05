@@ -1,0 +1,30 @@
+name: Generate PNG icons
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  icons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install renderer
+        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin
+      - name: Render PNGs from icon.svg
+        run: |
+          rsvg-convert -w 512 -h 512 icon.svg -o icon-512.png
+          rsvg-convert -w 192 -h 192 icon.svg -o icon-192.png
+          rsvg-convert -w 180 -h 180 icon.svg -o apple-touch-icon.png
+      - name: Commit icons, then remove this one-shot workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add icon-512.png icon-192.png apple-touch-icon.png
+          git commit -m "Add generated PNG icons from icon.svg"
+          rm .github/workflows/icons.yml
+          git add -A
+          git commit -m "Remove one-shot icon generation workflow"
+          git push
