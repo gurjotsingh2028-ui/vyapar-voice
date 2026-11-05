@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Vyapar Voice - bol kar khata</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1E5B46">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Vyapar Voice">
 <style>
 :root { --paper:#F6F1E7; --ink:#2B221B; --marigold:#D97E36; --green:#1E5B46; --green-soft:#e7efea; --marigold-soft:#f9ecdd; }
 * { box-sizing: border-box; }
@@ -69,6 +77,7 @@ input:focus, textarea:focus { outline: 2px solid var(--marigold); outline-offset
 .hidden { display: none; }
 .hero { width: 100%; border-radius: 14px; margin: 14px 0 4px; display: block; }
 .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.app-logo { width: 44px; height: 44px; border-radius: 10px; flex: none; margin-top: 2px; }
 .lang-btn { font: inherit; font-size: 13px; font-weight: 700; min-height: 40px; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--marigold); background: #fff; color: var(--ink); cursor: pointer; white-space: nowrap; }
 .sync-chip { font: inherit; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 7px 12px; min-height: 34px; border-radius: 999px; border: 1.5px solid #e2d6c3; background: #fff; color: #6b5f56; cursor: pointer; }
 .sync-chip.ok { color: var(--green); border-color: var(--green); background: var(--green-soft); }
@@ -77,7 +86,7 @@ input:focus, textarea:focus { outline: 2px solid var(--marigold); outline-offset
 </head>
 <body>
 <div class="wrap">
-  <div class="topbar"><div><h1>Vyapar Voice</h1>
+  <div class="topbar"><img class="app-logo" src="icon.svg" alt="Vyapar Voice logo" width="44" height="44"><div style="flex:1"><h1>Vyapar Voice</h1>
   <p class="tag" data-i18n="tag">बोलिए - खाता खुद बने</p><button class="sync-chip warn" id="sync-chip" type="button">&#8226; इस डिवाइस पर</button></div><button class="lang-btn" id="b-lang" type="button">English</button></div>
   <nav>
     <button data-r="add" class="on" data-i18n="nav-add">बोलिए</button>
