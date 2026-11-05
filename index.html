@@ -21,14 +21,14 @@ h1 { font-size: 26px; margin: 4px 0 2px; letter-spacing: -0.02em; }
 .tag { color: var(--green); font-weight: 600; margin: 0 0 10px; font-size: 14px; }
 
 /* floating bottom navigation */
-nav { position: fixed; left: 12px; right: 12px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 50; max-width: 536px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr 76px 1fr 1fr; gap: 4px; background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 6px; box-shadow: 0 10px 28px rgba(43,34,27,.16); }
+nav { position: fixed; left: 12px; right: 12px; bottom: calc(4px + env(safe-area-inset-bottom, 0px)); z-index: 50; max-width: 536px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr 76px 1fr 1fr; gap: 4px; background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 6px; box-shadow: 0 10px 28px rgba(43,34,27,.16); }
 nav button { font: inherit; background: none; border: none; border-radius: 999px; padding: 7px 2px 6px; min-height: 48px; color: #6b5f56; cursor: pointer; font-size: 11.5px; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
 nav button svg { width: 20px; height: 20px; }
 nav button.on { color: var(--green); background: var(--green-soft); }
 nav button[data-r="add"] { display: none; }
 nav button[data-r="export"] { grid-column: 4; }
 nav button[data-r="cloud"] { grid-column: 5; }
-#fab-mic { position: fixed; left: 50%; bottom: calc(26px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 51; width: 66px; height: 66px; border-radius: 50%; border: 3px solid #fff; background: var(--marigold); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 24px rgba(217,126,54,.45); padding: 0; }
+#fab-mic { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 51; width: 66px; height: 66px; border-radius: 50%; border: 3px solid #fff; background: var(--marigold); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 24px rgba(217,126,54,.45); padding: 0; }
 #fab-mic:active { transform: translateX(-50%) scale(.94); }
 #fab-mic.live { animation: pulse 1.2s ease-in-out infinite; background: #c96a26; }
 
@@ -36,6 +36,10 @@ nav button[data-r="cloud"] { grid-column: 5; }
 .band-t { font-size: 17px; font-weight: 700; }
 .wave { display: block; width: 100%; max-width: 320px; height: 40px; margin: 10px auto 14px; }
 .wave rect { fill: var(--marigold); }
+.band.listening .wave rect { transform-box: fill-box; transform-origin: center; animation: wBar .9s ease-in-out infinite; }
+.band.listening .wave rect:nth-child(3n+1) { animation-delay: .15s; }
+.band.listening .wave rect:nth-child(3n+2) { animation-delay: .3s; }
+@keyframes wBar { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(.35); } }
 .mic { display: flex; flex-direction: column; align-items: center; gap: 5px; margin: 0 auto; width: 112px; height: 112px; justify-content: center; border-radius: 999px; border: 3px solid rgba(246,241,231,.55); background: var(--marigold); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,.25); }
 .mic.live { animation: pulse 1.2s ease-in-out infinite; }
 @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(217,126,54,.55); } 50% { box-shadow: 0 0 0 14px rgba(217,126,54,0); } }
@@ -94,24 +98,24 @@ input:focus, textarea:focus { outline: 2px solid var(--marigold); outline-offset
 .sync-chip.warn { color: var(--marigold); border-color: var(--marigold); background: var(--marigold-soft); }
 
 /* opening splash: logo comes alive as a waveform */
-#splash { position: fixed; left: 0; right: 0; top: 0; bottom: 0; z-index: 100; background: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; transition: opacity .4s ease; }
+#splash { position: fixed; left: 0; right: 0; top: 0; bottom: 0; z-index: 100; background: var(--green); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; transition: opacity .4s ease; }
 #splash.done { opacity: 0; pointer-events: none; }
-#splash-logo { width: 118px; height: 118px; border-radius: 27px; box-shadow: 0 14px 34px rgba(30,91,70,.28); animation: sPop .55s cubic-bezier(.2,.9,.35,1.15) backwards; }
+#splash-logo { width: 118px; height: 118px; border-radius: 27px; box-shadow: 0 14px 34px rgba(0,0,0,.3); animation: sPop .55s cubic-bezier(.2,.9,.35,1.15) backwards; }
 @keyframes sPop { from { transform: scale(.55); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 #splash .sb { transform-box: fill-box; transform-origin: center; animation: sBar 1.05s ease-in-out infinite; }
 @keyframes sBar { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(.42); } }
-.splash-name { font-size: 21px; font-weight: 800; color: var(--green); letter-spacing: -0.01em; animation: sFade .6s ease .2s backwards; }
-.splash-tag { font-size: 13px; color: #6b5f56; margin-top: -8px; animation: sFade .6s ease .3s backwards; }
+.splash-name { font-size: 21px; font-weight: 800; color: var(--paper); letter-spacing: -0.01em; animation: sFade .6s ease .2s backwards; }
+.splash-tag { font-size: 13px; color: #cfe0d6; margin-top: -8px; animation: sFade .6s ease .3s backwards; }
 @keyframes sFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
   #splash { display: none; }
-  .mic.live, #fab-mic.live { animation: none; }
+  .mic.live, #fab-mic.live, .band.listening .wave rect { animation: none; }
 }
 </style>
 </head>
 <body>
 <div id="splash" role="presentation" aria-hidden="true">
-  <svg id="splash-logo" viewBox="0 0 1024 1024" aria-hidden="true"><rect width="1024" height="1024" rx="230" fill="#1E5B46"/><rect class="sb" style="animation-delay:.35s" x="79" y="452" width="77" height="120" rx="38" fill="#F6F1E7"/><rect class="sb" style="animation-delay:.43s" x="211" y="400" width="77" height="225" rx="38" fill="#F6F1E7"/><rect class="sb" style="animation-delay:.51s" x="343" y="331" width="77" height="363" rx="38" fill="#F6F1E7"/><rect class="sb" style="animation-delay:.59s" x="474" y="246" width="77" height="533" rx="38" fill="#D97E36"/><rect class="sb" style="animation-delay:.51s" x="606" y="331" width="77" height="363" rx="38" fill="#F6F1E7"/><rect class="sb" style="animation-delay:.43s" x="738" y="400" width="77" height="225" rx="38" fill="#F6F1E7"/><rect class="sb" style="animation-delay:.35s" x="871" y="452" width="77" height="120" rx="38" fill="#F6F1E7"/></svg>
+  <svg id="splash-logo" viewBox="0 0 1024 1024" aria-hidden="true"><rect width="1024" height="1024" rx="230" fill="#F6F1E7"/><rect class="sb" style="animation-delay:.35s" x="79" y="452" width="77" height="120" rx="38" fill="#1E5B46"/><rect class="sb" style="animation-delay:.43s" x="211" y="400" width="77" height="225" rx="38" fill="#1E5B46"/><rect class="sb" style="animation-delay:.51s" x="343" y="331" width="77" height="363" rx="38" fill="#1E5B46"/><rect class="sb" style="animation-delay:.59s" x="474" y="246" width="77" height="533" rx="38" fill="#D97E36"/><rect class="sb" style="animation-delay:.51s" x="606" y="331" width="77" height="363" rx="38" fill="#1E5B46"/><rect class="sb" style="animation-delay:.43s" x="738" y="400" width="77" height="225" rx="38" fill="#1E5B46"/><rect class="sb" style="animation-delay:.35s" x="871" y="452" width="77" height="120" rx="38" fill="#1E5B46"/></svg>
   <div class="splash-name">Vyapar Voice</div>
   <div class="splash-tag">बोलिए - खाता खुद बने</div>
 </div>
@@ -429,11 +433,11 @@ $('mic').onclick = function () {
     rec.onend = function () { stopMic(); };
     rec.start();
     listening = true;
-    $('mic').classList.add('live'); $('mic-t').textContent = t('mic-live');
+    $('mic').classList.add('live'); document.querySelector('.band').classList.add('listening'); $('mic-t').textContent = t('mic-live');
     voiceMsg('');
   } catch (e) { voiceMsg(t('voice-fail')); }
 };
-function stopMic() { listening = false; $('mic').classList.remove('live'); $('mic-t').textContent = t('mic-idle'); }
+function stopMic() { listening = false; $('mic').classList.remove('live'); document.querySelector('.band').classList.remove('listening'); $('mic-t').textContent = t('mic-idle'); }
 function voiceMsg(m) { var el = $('voice-msg'); el.textContent = m; el.classList.toggle('hidden', !m); }
 
 $('b-speak').onclick = function () {
