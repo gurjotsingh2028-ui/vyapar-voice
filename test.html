@@ -399,6 +399,7 @@ $('b-save').onclick = function () {
     type: curType, note: $('t-note').value.trim(), transcript: $('t-transcript').value.trim()
   };
   e.updated_at = new Date().toISOString();
+  e._owner = (session && session.user) ? session.user.id : null;
   entries.unshift(e);
   persist();
   cloudUpsert(e);
@@ -502,7 +503,7 @@ $('b-csv').onclick = function () {
 /* ---------------- Cloud sync (Supabase) ---------------- */
 var SUPABASE_URL = 'https://fdulhcjajnizyviaimne.supabase.co';
 var SUPABASE_ANON_KEY = 'sb_publishable_UiqVNn5fnX7jbFB8qwdbWQ_sw2dRbf8';
-var MERGE_ASKED_KEY = 'vyapar-voice-merge-asked-';
+var PENDING_KEY = 'vyapar-voice-pending-';
 var ARCHIVE_KEY = 'vyapar-voice-archive-v1';
 var sb = null, session = null, rtChannel = null, lastSync = 0, syncTimer = null;
 var cloudReady = false;
@@ -560,6 +561,7 @@ function mergeAndSync() {
     entries.forEach(function (e) { byId[e.id] = e; });
     (res.data || []).forEach(function (r) {
       var ce = rowToEntry(r);
+      ce._owner = session.user.id;
       var le = byId[ce.id];
       if (!le || Date.parse(ce.updated_at || 0) > Date.parse(le.updated_at || 0)) byId[ce.id] = ce;
     });
@@ -629,18 +631,55 @@ function restoreArchive() {
     document.getElementById('archive-note').classList.add('hidden');
   } catch (e) {}
 }
-function mergeAsked() {
-  try { return !!localStorage.getItem(MERGE_ASKED_KEY + session.user.id); } catch (e) { return false; }
+var pendingConsent = [];
+function parkForOwner(e) {
+  try {
+    var key = PENDING_KEY + e._owner;
+    var arr = JSON.parse(localStorage.getItem(key) || '[]');
+    if (!arr.some(function (x) { return x.id === e.id; })) arr.push(e);
+    localStorage.setItem(key, JSON.stringify(arr));
+  } catch (err) {}
 }
-function markMergeAsked() {
-  try { localStorage.setItem(MERGE_ASKED_KEY + session.user.id, '1'); } catch (e) {}
+function parkOwnPending(uid) {
+  var mine = [], rest = [];
+  entries.forEach(function (e) { if (!e._cloud && e._owner === uid) mine.push(e); else rest.push(e); });
+  entries = rest;
+  if (mine.length) {
+    try {
+      var key = PENDING_KEY + uid;
+      var arr = JSON.parse(localStorage.getItem(key) || '[]');
+      mine.forEach(function (e) { if (!arr.some(function (x) { return x.id === e.id; })) arr.push(e); });
+      localStorage.setItem(key, JSON.stringify(arr));
+    } catch (e) {}
+  }
 }
 function afterSignIn() {
   showSignedIn(session.user.email || '');
+  var uid = session.user.id;
+  // bring back this account's pending offline records (bound to this uid)
+  try {
+    var pend = JSON.parse(localStorage.getItem(PENDING_KEY + uid) || '[]');
+    if (pend.length) {
+      var have = {}; entries.forEach(function (e) { have[e.id] = true; });
+      pend.forEach(function (e) { if (!have[e.id]) entries.push(e); });
+      localStorage.removeItem(PENDING_KEY + uid);
+    }
+  } catch (e) {}
+  // partition: only this account's records stay active; foreign records park aside;
+  // unassociated (never-owned) device-local records need explicit consent
+  var keep = []; pendingConsent = [];
+  entries.forEach(function (e) {
+    if (e._cloud || e._owner) {
+      if (e._owner === uid || (!e._owner && e._cloud)) keep.push(e);
+      else if (!e._cloud) parkForOwner(e);
+      /* foreign _cloud rows drop: they stay safe in their own account's cloud */
+    } else pendingConsent.push(e);
+  });
+  entries = keep;
+  persist(); renderAll();
   try { if (JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]').length) document.getElementById('archive-note').classList.remove('hidden'); } catch (e) {}
-  var n = liveEntries().length;
-  if (n > 0 && !mergeAsked()) {
-    document.getElementById('merge-q').textContent = t('merge-q').replace('{n}', n);
+  if (pendingConsent.length) {
+    document.getElementById('merge-q').textContent = t('merge-q').replace('{n}', pendingConsent.length);
     document.getElementById('merge-row').classList.remove('hidden');
     setSync('local');
   } else {
@@ -665,21 +704,33 @@ document.getElementById('b-code').onclick = function () {
   });
 };
 document.getElementById('b-merge-yes').onclick = function () {
-  markMergeAsked();
+  var uid = session.user.id;
+  pendingConsent.forEach(function (e) { e._owner = uid; });
+  entries = entries.concat(pendingConsent);
+  pendingConsent = [];
   document.getElementById('merge-row').classList.add('hidden');
+  persist(); renderAll();
   mergeAndSync(); subscribeRealtime();
 };
 document.getElementById('b-merge-no').onclick = function () {
+  try {
+    var old = JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]');
+    var byId = {}; old.forEach(function (e) { byId[e.id] = e; });
+    pendingConsent.forEach(function (e) { byId[e.id] = e; });
+    localStorage.setItem(ARCHIVE_KEY, JSON.stringify(Object.keys(byId).map(function (k) { return byId[k]; })));
+    document.getElementById('archive-note').classList.remove('hidden');
+  } catch (e) {}
+  pendingConsent = [];
   document.getElementById('merge-row').classList.add('hidden');
-  archiveLocal();
-  entries = []; persist(); renderAll();
+  renderAll();
   mergeAndSync(); subscribeRealtime();
 };
 document.getElementById('b-signout').onclick = function () {
   if (!sb) return;
   unsubscribeRealtime();
   sb.auth.signOut().then(function () {
-    session = null; dropCloudEntries(); restoreArchive(); persist(); renderAll(); showSignedOut();
+    var uid = session.user.id;
+    session = null; parkOwnPending(uid); dropCloudEntries(); restoreArchive(); persist(); renderAll(); showSignedOut();
   });
 };
 window.addEventListener('online', function () { if (session) scheduleSync(); });
@@ -719,7 +770,10 @@ if (sb) {
   });
   sb.auth.onAuthStateChange(function (ev) {
     if (ev === 'SIGNED_OUT') {
-      session = null; unsubscribeRealtime(); dropCloudEntries(); restoreArchive(); persist(); renderAll(); showSignedOut();
+      var uid0 = session.user ? session.user.id : null;
+      session = null; unsubscribeRealtime();
+      if (uid0) parkOwnPending(uid0);
+      dropCloudEntries(); restoreArchive(); persist(); renderAll(); showSignedOut();
     }
   });
 } else { setSync('local'); }
