@@ -68,77 +68,79 @@ input:focus, textarea:focus { outline: 2px solid var(--marigold); outline-offset
 .warn { background: var(--marigold-soft); border: 1.5px solid var(--marigold); border-radius: 10px; padding: 10px 12px; font-size: 13px; margin: 10px 0; }
 .hidden { display: none; }
 .hero { width: 100%; border-radius: 14px; margin: 14px 0 4px; display: block; }
+.topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.lang-btn { font: inherit; font-size: 13px; font-weight: 700; min-height: 40px; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--marigold); background: #fff; color: var(--ink); cursor: pointer; white-space: nowrap; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Vyapar Voice</h1>
-  <p class="tag">बोलिए - खाता खुद बने</p>
+  <div class="topbar"><div><h1>Vyapar Voice</h1>
+  <p class="tag" data-i18n="tag">बोलिए - खाता खुद बने</p></div><button class="lang-btn" id="b-lang" type="button">English</button></div>
   <nav>
-    <button data-r="add" class="on">बोलिए</button>
-    <button data-r="khata">बही-खाता</button>
-    <button data-r="udhaar">उधार</button>
-    <button data-r="export">डाउनलोड</button>
+    <button data-r="add" class="on" data-i18n="nav-add">बोलिए</button>
+    <button data-r="khata" data-i18n="nav-khata">बही-खाता</button>
+    <button data-r="udhaar" data-i18n="nav-udhaar">उधार</button>
+    <button data-r="export" data-i18n="nav-export">डाउनलोड</button>
   </nav>
 
   <section id="r-add">
     <div class="band">
-      <div class="band-t">Mic dabao, Hindi me bolo</div>
+      <div class="band-t" data-i18n="band-t">Mic dabao, Hindi me bolo</div>
       <svg class="wave" viewBox="0 0 360 48" aria-hidden="true" id="wave"></svg>
       <button class="mic" id="mic"><svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true"><path fill="currentColor" d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 1 0-7 0v6A3.5 3.5 0 0 0 12 15Zm6-3.5a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.94V22h2v-2.56A8 8 0 0 0 20 11.5h-2Z"/></svg><span id="mic-t">बोलिए</span></button>
       <div class="note hidden" id="voice-msg"></div>
     </div>
     <div class="field">
-      <label for="t-transcript">Jo bola / likha</label>
-      <textarea id="t-transcript" rows="2" placeholder="Jaise: Ramesh ko 500 udhaar diya"></textarea>
-      <button class="btn btn-g" id="b-parse" type="button">Is se entry samjho</button>
+      <label for="t-transcript" data-i18n="l-transcript">Jo bola / likha</label>
+      <textarea id="t-transcript" rows="2" placeholder="Jaise: Ramesh ko 500 udhaar diya" data-i18n-ph="ph-transcript"></textarea>
+      <button class="btn btn-g" id="b-parse" type="button" data-i18n="b-parse">Is se entry samjho</button>
     </div>
     <div class="examples" id="examples"></div>
     <div class="types" id="types"></div>
     <div class="grid2">
-      <div class="field"><label for="t-person">Naam</label><input id="t-person" placeholder="Jaise: Ramesh"></div>
-      <div class="field"><label for="t-amount">Rakam (₹)</label><input id="t-amount" inputmode="decimal" placeholder="500"></div>
+      <div class="field"><label for="t-person" data-i18n="l-person">Naam</label><input id="t-person" placeholder="Jaise: Ramesh" data-i18n-ph="ph-person"></div>
+      <div class="field"><label for="t-amount" data-i18n="l-amount">Rakam (₹)</label><input id="t-amount" inputmode="decimal" placeholder="500"></div>
     </div>
-    <div class="field"><label for="t-note">Note (optional)</label><input id="t-note" placeholder="Jaise: atta-chawal ka saaman"></div>
+    <div class="field"><label for="t-note" data-i18n="l-note">Note (optional)</label><input id="t-note" placeholder="Jaise: atta-chawal ka saaman" data-i18n-ph="ph-note"></div>
     <div class="actions">
-      <button class="btn btn-s" id="b-speak" type="button">सुनें - sahi hai?</button>
-      <button class="btn btn-p" id="b-save" type="button">Save करें</button>
+      <button class="btn btn-s" id="b-speak" type="button" data-i18n="b-speak">सुनें - sahi hai?</button>
+      <button class="btn btn-p" id="b-save" type="button" data-i18n="b-save">Save करें</button>
     </div>
     <p class="flash hidden" id="flash" role="status"></p>
   </section>
 
   <section id="r-khata" class="hidden">
-    <div class="sec-t">Udhaar ka hisaab</div>
+    <div class="sec-t" data-i18n="khata-t">Udhaar ka hisaab</div>
     <div class="totals">
-      <div class="total in"><span class="t">आपको लेने हैं</span><span class="a" id="sum-in">₹0</span></div>
-      <div class="total out"><span class="t">आपको देने हैं</span><span class="a" id="sum-out">₹0</span></div>
+      <div class="total in"><span class="t" data-i18n="sum-in">आपको लेने हैं</span><span class="a" id="sum-in">₹0</span></div>
+      <div class="total out"><span class="t" data-i18n="sum-out">आपको देने हैं</span><span class="a" id="sum-out">₹0</span></div>
     </div>
     <div class="sec-t" id="entries-h">Saari entries (0)</div>
     <div id="entries"></div>
-    <p class="cap" id="khata-empty">Abhi koi entry nahi. Boliye tab me pehli entry karein.</p>
+    <p class="cap" id="khata-empty" data-i18n="khata-empty">Abhi koi entry nahi. Boliye tab me pehli entry karein.</p>
   </section>
 
   <section id="r-udhaar" class="hidden">
-    <div class="sec-t">Kiske kitne paise</div>
+    <div class="sec-t" data-i18n="udhaar-t">Kiske kitne paise</div>
     <div id="persons"></div>
-    <p class="cap" id="udhaar-empty">Koi udhaar baaki nahi. Jab kisi ko udhaar dein ya jama aaye, yahan naam aur hisaab dikhega.</p>
-    <p class="cap">Reminder ka text copy hota hai - aap khud WhatsApp me paste kar ke bhejte hain. App apne aap kisi ko message nahi bhejta.</p>
+    <p class="cap" id="udhaar-empty" data-i18n="udhaar-empty">Koi udhaar baaki nahi. Jab kisi ko udhaar dein ya jama aaye, yahan naam aur hisaab dikhega.</p>
+    <p class="cap" data-i18n="reminder-cap">Reminder ka text copy hota hai - aap khud WhatsApp me paste kar ke bhejte hain. App apne aap kisi ko message nahi bhejta.</p>
   </section>
 
   <section id="r-export" class="hidden">
-    <div class="sec-t">Poora khata - CSV download</div>
+    <div class="sec-t" data-i18n="export-t">Poora khata - CSV download</div>
     <p class="cap" id="exp-count">0 entries saved hain.</p>
-    <div class="actions"><button class="btn btn-p" id="b-csv" type="button">CSV download karein</button></div>
-    <p class="cap" style="margin-top:10px">CSV file Excel, Google Sheets aur bahi-khata apps me khulti hai. Agar download na chale to neeche se copy karein:</p>
+    <div class="actions"><button class="btn btn-p" id="b-csv" type="button" data-i18n="b-csv">CSV download karein</button></div>
+    <p class="cap" style="margin-top:10px" data-i18n="csv-cap">CSV file Excel, Google Sheets aur bahi-khata apps me khulti hai. Agar download na chale to neeche se copy karein:</p>
     <div class="field"><textarea id="t-csv" rows="8" readonly></textarea></div>
-    <div class="sec-t">Storage</div>
+    <div class="sec-t" data-i18n="storage-t">Storage</div>
     <div class="usage"><div class="usage-b" id="usage-b" style="width:2%"></div></div>
     <p class="cap" id="usage-t"></p>
   </section>
 
-  <div class="warn hidden" id="persist-warn">Is browser me entries save nahi ho pa rahi - page band hote hi hat jayengi. CSV ka backup lete rahein.</div>
+  <div class="warn hidden" id="persist-warn" data-i18n="persist-warn">Is browser me entries save nahi ho pa rahi - page band hote hi hat jayengi. CSV ka backup lete rahein.</div>
 
-  <p class="cap" style="margin-top:26px">Data sirf isi device ke browser me saved rehta hai - doosre phone ya browser par yeh khata nahi dikhega, isliye CSV ka backup lete rahein. Audio recording is version me store nahi hoti - boli gayi baat ka likha text hi record hai. Koi message ya payment apne aap nahi hota. Chrome/Android me voice input sabse achha chalta hai.</p>
+  <p class="cap" style="margin-top:26px" data-i18n="foot-cap">Data sirf isi device ke browser me saved rehta hai - doosre phone ya browser par yeh khata nahi dikhega, isliye CSV ka backup lete rahein. Audio recording is version me store nahi hoti - boli gayi baat ka likha text hi record hai. Koi message ya payment apne aap nahi hota. Voice input usi browser me chalta hai jo mic ki permission de aur Web Speech support kare.</p>
 </div>
 
 <script>
@@ -153,6 +155,64 @@ var TYPES = {
   'kharid': { hi: 'ख़रीद', en: 'purchase', sign: 0 }
 };
 var ORDER = ['udhaar-diya', 'jama', 'udhaar-liya', 'chukaya', 'sale', 'kharid'];
+var LANG_KEY = 'vyapar-voice-lang';
+var I18N = {
+  'tag': { hi: 'बोलिए - खाता खुद बने', en: 'Speak - your khata writes itself' },
+  'nav-add': { hi: 'बोलिए', en: 'Speak' },
+  'nav-khata': { hi: 'बही-खाता', en: 'Ledger' },
+  'nav-udhaar': { hi: 'उधार', en: 'Dues' },
+  'nav-export': { hi: 'डाउनलोड', en: 'Download' },
+  'band-t': { hi: 'माइक दबाएं, हिन्दी में बोलें', en: 'Tap the mic and speak in Hindi' },
+  'mic-idle': { hi: 'बोलिए', en: 'Speak' },
+  'mic-live': { hi: 'सुन रहा हूँ...', en: 'Listening...' },
+  'l-transcript': { hi: 'जो बोला / लिखा', en: 'What you said / typed' },
+  'ph-transcript': { hi: 'जैसे: रमेश को 500 उधार दिया', en: 'E.g.: Ramesh ko 500 udhaar diya' },
+  'b-parse': { hi: 'इससे एंट्री बनाएं', en: 'Make entry from this' },
+  'l-person': { hi: 'नाम', en: 'Name' },
+  'ph-person': { hi: 'जैसे: रमेश', en: 'E.g.: Ramesh' },
+  'l-amount': { hi: 'रकम (₹)', en: 'Amount (₹)' },
+  'l-note': { hi: 'नोट (वैकल्पिक)', en: 'Note (optional)' },
+  'ph-note': { hi: 'जैसे: आटा-चावल का सामान', en: 'E.g.: flour and rice supplies' },
+  'b-speak': { hi: 'सुनें - सही है?', en: 'Listen - correct?' },
+  'b-save': { hi: 'सेव करें', en: 'Save' },
+  'khata-t': { hi: 'उधार का हिसाब', en: 'Dues summary' },
+  'sum-in': { hi: 'आपको लेने हैं', en: 'You will receive' },
+  'sum-out': { hi: 'आपको देने हैं', en: 'You will pay' },
+  'entries-h': { hi: 'सारी एंट्रियाँ', en: 'All entries' },
+  'khata-empty': { hi: 'अभी कोई एंट्री नहीं। बोलिए टैब में पहली एंट्री करें।', en: 'No entries yet. Add your first entry in the Speak tab.' },
+  'udhaar-t': { hi: 'किसके कितने पैसे', en: 'Who owes what' },
+  'udhaar-empty': { hi: 'कोई उधार बाकी नहीं। जब किसी को उधार दें या जमा आए, यहाँ नाम और हिसाब दिखेगा।', en: 'No dues pending. When you give credit or receive a payment, names and balances show here.' },
+  'reminder-cap': { hi: 'रिमाइंडर का टेक्स्ट कॉपी होता है - आप खुद WhatsApp में पेस्ट कर के भेजते हैं। ऐप अपने आप किसी को मैसेज नहीं भेजता।', en: 'Reminder text is for copying - you paste and send it in WhatsApp yourself. The app never messages anyone on its own.' },
+  'export-t': { hi: 'पूरा खाता - CSV डाउनलोड', en: 'Full khata - CSV download' },
+  'exp-count': { hi: 'एंट्रियाँ सेव हैं।', en: 'entries saved.' },
+  'b-csv': { hi: 'CSV डाउनलोड करें', en: 'Download CSV' },
+  'csv-cap': { hi: 'CSV फ़ाइल Excel, Google Sheets और बही-खाता ऐप्स में खुलती है। अगर डाउनलोड न चले तो नीचे से कॉपी करें:', en: 'The CSV file opens in Excel, Google Sheets and ledger apps. If the download does not work, copy from below:' },
+  'storage-t': { hi: 'स्टोरेज', en: 'Storage' },
+  'usage-a': { hi: 'इस डिवाइस पर करीब ', en: 'About ' },
+  'usage-b': { hi: ' KB इस्तेमाल हो रहा है (browser localStorage, अक्सर 5 MB तक)। CSV का बैकअप लेते रहें।', en: ' KB used on this device (browser localStorage, usually up to 5 MB). Keep taking CSV backups.' },
+  'persist-warn': { hi: 'इस ब्राउज़र में एंट्रियाँ सेव नहीं हो पा रही - पेज बंद होते ही हट जाएँगी। CSV का बैकअप लेते रहें।', en: 'Entries cannot be saved in this browser - they will disappear when the page closes. Keep taking CSV backups.' },
+  'foot-cap': { hi: 'डेटा सिर्फ इसी डिवाइस के ब्राउज़र में सेव रहता है - दूसरे फ़ोन या ब्राउज़र पर यह खाता नहीं दिखेगा, इसलिए CSV का बैकअप लेते रहें। ऑडियो रिकॉर्डिंग इस वर्ज़न में स्टोर नहीं होती - बोली गई बात का लिखा टेक्स्ट ही रिकॉर्ड है। कोई मैसेज या पेमेंट अपने आप नहीं होता। वॉइस इनपुट उसी ब्राउज़र में चलता है जो माइक की अनुमति दे और Web Speech सपोर्ट करे।', en: "Data stays saved in this device's browser only - this khata will not appear on another phone or browser, so keep taking CSV backups. Audio is not stored in this version - the written text of what you said is the record. No message or payment happens on its own. Voice input works in browsers that allow mic access and support Web Speech." },
+  'flash-amount': { hi: 'रकम 0 से ज़्यादा होनी चाहिए।', en: 'Amount must be more than 0.' },
+  'flash-name': { hi: 'नाम डालना ज़रूरी है - उधार किसके नाम है?', en: 'Name is required - whose udhaar is this?' },
+  'flash-saved': { hi: 'सेव हो गया: ', en: 'Saved: ' },
+  'voice-nosr': { hi: 'इस ब्राउज़र में वॉइस इनपुट नहीं है। टाइप करके एंट्री करें।', en: 'This browser has no voice input. Type your entry instead.' },
+  'voice-denied': { hi: 'ब्राउज़र ने माइक की अनुमति नहीं दी। एड्रेस बार के पास माइक की permission on करें, या टाइप करके एंट्री करें।', en: 'The browser did not allow mic access. Turn on mic permission near the address bar, or type your entry.' },
+  'voice-err1': { hi: 'वॉइस अभी काम नहीं कर रहा', en: 'Voice is not working right now' },
+  'voice-err2': { hi: '। टाइप करके एंट्री करें।', en: '. Type your entry instead.' },
+  'voice-fail': { hi: 'वॉइस शुरू नहीं हो पाया। टाइप करके एंट्री करें।', en: 'Could not start voice. Type your entry instead.' },
+  'del-confirm': { hi: 'यह एंट्री हटा दें?', en: 'Delete this entry?' },
+  'del-aria': { hi: 'एंट्री हटाएं', en: 'Delete entry' },
+  'entry-fallback': { hi: 'एंट्री', en: 'Entry' },
+  'lene': { hi: 'लेने हैं', en: 'to receive' },
+  'dene': { hi: 'देने हैं', en: 'to pay' },
+  'rem-text': { hi: 'रिमाइंडर टेक्स्ट', en: 'Reminder text' },
+  'rem-close': { hi: 'बंद करें', en: 'Close' },
+  'csv-fail': { hi: 'डाउनलोड नहीं हो पाया - नीचे टेक्स्ट कॉपी कर लें।', en: 'Download failed - copy the text below.' }
+};
+var lang = 'hi';
+try { lang = localStorage.getItem(LANG_KEY) === 'en' ? 'en' : 'hi'; } catch (e) {}
+function t(k) { return (I18N[k] && I18N[k][lang]) || ''; }
+function typeLabel(ty) { return lang === 'hi' ? TYPES[ty].hi : TYPES[ty].en; }
 var KEY = 'vyapar-voice-entries-v1';
 var entries = [];
 var persistent = true;
@@ -204,23 +264,34 @@ function parseSpoken(raw) {
 
 var curType = 'udhaar-diya';
 var typesEl = document.getElementById('types');
-ORDER.forEach(function (t) {
-  var b = document.createElement('button');
-  b.type = 'button'; b.className = 'type' + (t === curType ? ' on' : '');
-  b.innerHTML = '<span class="hi">' + TYPES[t].hi + '</span><span class="en">' + TYPES[t].en + '</span>';
-  b.onclick = function () { curType = t; typesEl.querySelectorAll('.type').forEach(function (x) { x.classList.remove('on'); }); b.classList.add('on'); };
-  typesEl.appendChild(b);
-});
+function renderTypes() {
+  typesEl.innerHTML = '';
+  ORDER.forEach(function (ty) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'type' + (ty === curType ? ' on' : '');
+    b.innerHTML = '<span class="hi">' + typeLabel(ty) + '</span><span class="en">' + (lang === 'hi' ? TYPES[ty].en : TYPES[ty].hi) + '</span>';
+    b.onclick = function () { curType = ty; typesEl.querySelectorAll('.type').forEach(function (x) { x.classList.remove('on'); }); b.classList.add('on'); };
+    typesEl.appendChild(b);
+  });
+}
+renderTypes();
 function setType(t) { curType = t; typesEl.querySelectorAll('.type').forEach(function (x, idx) { x.classList.toggle('on', ORDER[idx] === t); }); }
 
-var EXAMPLES = ['Ramesh ko 500 udhaar diya', 'Sunita se 200 jama aaye', 'Aaj 1500 ki bikri', 'Gupta traders se maal 3000 ka kharida'];
+var EXAMPLES = {
+  hi: ['रमेश को 500 उधार दिया', 'सुनीता से 200 जमा आए', 'आज 1500 की बिक्री', 'गुप्ता ट्रेडर्स से माल 3000 का खरीदा'],
+  en: ['Ramesh ko 500 udhaar diya', 'Sunita se 200 jama aaye', 'Aaj 1500 ki bikri', 'Gupta traders se maal 3000 ka kharida']
+};
 var exEl = document.getElementById('examples');
-EXAMPLES.forEach(function (x) {
-  var b = document.createElement('button');
-  b.type = 'button'; b.className = 'chip-eg'; b.textContent = x;
-  b.onclick = function () { applyTranscript(x); };
-  exEl.appendChild(b);
-});
+function renderExamples() {
+  exEl.innerHTML = '';
+  EXAMPLES[lang].forEach(function (x) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip-eg'; b.textContent = x;
+    b.onclick = function () { applyTranscript(x); };
+    exEl.appendChild(b);
+  });
+}
+renderExamples();
 
 var $ = function (id) { return document.getElementById(id); };
 function applyTranscript(t) {
@@ -235,7 +306,7 @@ $('b-parse').onclick = function () { applyTranscript($('t-transcript').value); }
 var rec = null, listening = false;
 $('mic').onclick = function () {
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { voiceMsg('Is browser me voice input nahi hai. Type karke entry karein - phone ke Chrome me bolna kaam karta hai.'); return; }
+  if (!SR) { voiceMsg(t('voice-nosr')); return; }
   if (listening) { try { rec.stop(); } catch (e) {} return; }
   try {
     rec = new SR();
@@ -247,17 +318,17 @@ $('mic').onclick = function () {
     };
     rec.onerror = function (ev) {
       stopMic();
-      if (ev && (ev.error === 'not-allowed' || ev.error === 'service-not-allowed')) voiceMsg('Browser ne mic ka access nahi diya. Address bar ke paas mic ki permission on karein, ya type karke entry karein.');
-      else voiceMsg('Voice abhi kaam nahi kar raha' + (ev && ev.error ? ' (' + ev.error + ')' : '') + '. Type karke entry karein.');
+      if (ev && (ev.error === 'not-allowed' || ev.error === 'service-not-allowed')) voiceMsg(t('voice-denied'));
+      else voiceMsg(t('voice-err1') + (ev && ev.error ? ' (' + ev.error + ')' : '') + t('voice-err2'));
     };
     rec.onend = function () { stopMic(); };
     rec.start();
     listening = true;
-    $('mic').classList.add('live'); $('mic-t').textContent = 'Sun raha hoon...';
+    $('mic').classList.add('live'); $('mic-t').textContent = t('mic-live');
     voiceMsg('');
-  } catch (e) { voiceMsg('Voice shuru nahi ho paya. Type karke entry karein.'); }
+  } catch (e) { voiceMsg(t('voice-fail')); }
 };
-function stopMic() { listening = false; $('mic').classList.remove('live'); $('mic-t').textContent = 'बोलिए'; }
+function stopMic() { listening = false; $('mic').classList.remove('live'); $('mic-t').textContent = t('mic-idle'); }
 function voiceMsg(m) { var el = $('voice-msg'); el.textContent = m; el.classList.toggle('hidden', !m); }
 
 $('b-speak').onclick = function () {
@@ -269,9 +340,9 @@ $('b-speak').onclick = function () {
 
 $('b-save').onclick = function () {
   var amt = Number($('t-amount').value);
-  if (!isFinite(amt) || amt <= 0) { flash('Amount 0 se zyada hona chahiye.'); return; }
+  if (!isFinite(amt) || amt <= 0) { flash(t('flash-amount')); return; }
   var person = $('t-person').value.trim();
-  if (!person && TYPES[curType].sign !== 0) { flash('Naam daalna zaroori hai - udhaar kiske naam hai?'); return; }
+  if (!person && TYPES[curType].sign !== 0) { flash(t('flash-name')); return; }
   var e = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
     ts: Date.now(), person: person, amount: Math.round(amt * 100) / 100,
@@ -279,7 +350,7 @@ $('b-save').onclick = function () {
   };
   entries.unshift(e);
   persist();
-  flash('Save ho gaya: ' + (e.person ? e.person + ' - ' : '') + TYPES[e.type].hi + ' ₹' + fmt(e.amount));
+  flash(t('flash-saved') + (e.person ? e.person + ' - ' : '') + typeLabel(e.type) + ' ₹' + fmt(e.amount));
   $('t-transcript').value = ''; $('t-person').value = ''; $('t-amount').value = ''; $('t-note').value = '';
   setType('udhaar-diya');
   renderKhata(); renderUdhaar(); renderExport();
@@ -304,20 +375,20 @@ function renderKhata() {
   bl.forEach(function (p) { if (p.net > 0) lin += p.net; else lout -= p.net; });
   $('sum-in').textContent = '₹' + fmt(lin);
   $('sum-out').textContent = '₹' + fmt(lout);
-  $('entries-h').textContent = 'Saari entries (' + entries.length + ')';
+  $('entries-h').textContent = t('entries-h') + ' (' + entries.length + ')';
   $('khata-empty').classList.toggle('hidden', entries.length > 0);
   var html = '';
   entries.forEach(function (e) {
-    html += '<div class="entry"><div class="e-main"><span class="e-name">' + escHtml(e.person || (e.type === 'sale' ? 'बिक्री' : e.type === 'kharid' ? 'ख़रीद' : 'Entry')) + '</span>' +
-      '<span class="e-type">' + TYPES[e.type].hi + '</span>' +
+    html += '<div class="entry"><div class="e-main"><span class="e-name">' + escHtml(e.person || (e.type === 'sale' || e.type === 'kharid' ? typeLabel(e.type) : t('entry-fallback'))) + '</span>' +
+      '<span class="e-type">' + typeLabel(e.type) + '</span>' +
       (e.note ? '<span class="e-note">' + escHtml(e.note) + '</span>' : '') +
       '<span class="e-date">' + fmtDate(e.ts) + '</span></div>' +
-      '<div class="e-side"><span class="e-amt">₹' + fmt(e.amount) + '</span><button class="del" data-id="' + e.id + '" aria-label="Entry hatayein">✕</button></div></div>';
+      '<div class="e-side"><span class="e-amt">₹' + fmt(e.amount) + '</span><button class="del" data-id="' + e.id + '" aria-label="' + t('del-aria') + '">✕</button></div></div>';
   });
   $('entries').innerHTML = html;
   $('entries').querySelectorAll('.del').forEach(function (b) {
     b.onclick = function () {
-      if (!window.confirm('Yeh entry hata dein?')) return;
+      if (!window.confirm(t('del-confirm'))) return;
       entries = entries.filter(function (e) { return e.id !== b.getAttribute('data-id'); });
       persist(); renderKhata(); renderUdhaar(); renderExport();
     };
@@ -331,8 +402,8 @@ function renderUdhaar() {
   var html = '';
   bl.forEach(function (p) {
     html += '<div><div class="person"><div class="e-main"><span class="e-name">' + escHtml(p.person) + '</span>' +
-      (p.net > 0 ? '<span class="p-amt in">₹' + fmt(p.net) + ' lene hain</span>' : '<span class="p-amt out">₹' + fmt(-p.net) + ' dene hain</span>') + '</div>' +
-      (p.net > 0 ? '<button class="btn btn-g" data-p="' + escHtml(p.person) + '" data-a="' + p.net + '">Reminder text</button>' : '') + '</div>' +
+      (p.net > 0 ? '<span class="p-amt in">₹' + fmt(p.net) + ' ' + t('lene') + '</span>' : '<span class="p-amt out">₹' + fmt(-p.net) + ' ' + t('dene') + '</span>') + '</div>' +
+      (p.net > 0 ? '<button class="btn btn-g" data-p="' + escHtml(p.person) + '" data-a="' + p.net + '">' + t('rem-text') + '</button>' : '') + '</div>' +
       '<div class="field hidden" id="rem-' + escHtml(p.person) + '"><textarea readonly rows="3">' + reminderText(p.person, p.net) + '</textarea></div></div>';
   });
   $('persons').innerHTML = html;
@@ -342,7 +413,7 @@ function renderUdhaar() {
       if (!box) return;
       box.classList.toggle('hidden');
       if (!box.classList.contains('hidden')) { var ta = box.querySelector('textarea'); ta.focus(); ta.select(); }
-      b.textContent = box.classList.contains('hidden') ? 'Reminder text' : 'Band karein';
+      b.textContent = box.classList.contains('hidden') ? t('rem-text') : t('rem-close');
     };
   });
 }
@@ -357,10 +428,10 @@ function buildCsv() {
   return ['"Date","Name","Type","Amount (INR)","Note","Transcript"'].concat(rows).join('\n');
 }
 function renderExport() {
-  $('exp-count').textContent = entries.length + ' entries saved hain.';
+  $('exp-count').textContent = entries.length + ' ' + t('exp-count');
   $('t-csv').value = buildCsv();
   var kb = Math.round(JSON.stringify(entries).length / 1024);
-  $('usage-t').textContent = 'Is device par about ' + kb + ' KB use ho raha hai (browser localStorage, aksar 5 MB tak). CSV ka backup lete rahein.';
+  $('usage-t').textContent = t('usage-a') + kb + t('usage-b');
   $('usage-b').style.width = Math.max(2, Math.min(100, (JSON.stringify(entries).length / (5 * 1024 * 1024)) * 100)) + '%';
 }
 $('b-csv').onclick = function () {
@@ -371,8 +442,20 @@ $('b-csv').onclick = function () {
     a.href = url; a.download = 'vyapar-voice-khata.csv';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-  } catch (e) { alert('Download nahi ho paya - neeche text copy kar lein.'); }
+  } catch (e) { alert(t('csv-fail')); }
 };
+
+function applyLang(l) {
+  lang = (l === 'en') ? 'en' : 'hi';
+  try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+  document.documentElement.lang = lang;
+  $('b-lang').textContent = lang === 'hi' ? 'English' : 'हिन्दी';
+  document.querySelectorAll('[data-i18n]').forEach(function (el) { var k = el.getAttribute('data-i18n'); if (I18N[k]) el.textContent = t(k); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function (el) { var k = el.getAttribute('data-i18n-ph'); if (I18N[k]) el.setAttribute('placeholder', t(k)); });
+  renderTypes(); renderExamples(); renderKhata(); renderUdhaar(); renderExport();
+  if (!listening) $('mic-t').textContent = t('mic-idle');
+}
+$('b-lang').onclick = function () { applyLang(lang === 'hi' ? 'en' : 'hi'); };
 
 var navBtns = document.querySelectorAll('nav button');
 navBtns.forEach(function (b) {
@@ -385,7 +468,7 @@ navBtns.forEach(function (b) {
   };
 });
 
-renderKhata(); renderUdhaar(); renderExport();
+applyLang(lang);
 })();
 </script>
 </body>
